@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { setupSwagger } from './common/swagger/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(6000,()=>{
-    console.log('Server is running on http://localhost:6000')
-  });
+  setupSwagger(app);
+  await app.listen(3000);
 }
 bootstrap();
