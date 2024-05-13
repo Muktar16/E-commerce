@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SharedModule } from './shared/shared.module';
 import { V1Module } from './v1/v1.module';
-import { JwtModule } from '@nestjs/jwt';
+import { GuardsModule } from './shared/guards/guards.module';
 
 @Module({
   imports: [
@@ -27,16 +28,10 @@ import { JwtModule } from '@nestjs/jwt';
       }),
       inject: [ConfigService],
     }),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'), // Replace with your own secret key
-        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') }, // Adjust token expiration as needed
-      }),
-      inject: [ConfigService],
-    }),
     ConfigModule,
     V1Module,
+    SharedModule,
+    GuardsModule,
   ],
 })
 export class ModulesModule {}

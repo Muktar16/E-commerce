@@ -26,6 +26,6 @@ export class UserEntity extends AbstractEntity<UserEntity>{
     @Column({ name: 'otp', nullable: true })
     otp: number;
 
-    @Column({name: 'roles', type: 'enum', enum:Roles,array:true, default: [Roles.USER]})
-    roles: Roles[];
+    @Column({name: 'role', type: 'text', default: Roles.USER})
+    role: string
 }
