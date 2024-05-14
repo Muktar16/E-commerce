@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -30,7 +30,12 @@ export class CategoryService {
   }
 
   async findOne(id: number): Promise<Category> {
-    return this.categoryRepository.findOne({ where: { id } });
+    const category = await this.categoryRepository.findOne({ where: { id } });
+    if (!category) {
+      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+    }else{
+      return category;
+    }
   }
 
   async update(
@@ -39,7 +44,7 @@ export class CategoryService {
   ): Promise<Category> {
     const category = await this.categoryRepository.findOne({ where: { id } });
     if (!category) {
-      throw new Error(`Category with ID ${id} not found`);
+      throw new HttpException(`Category with ID ${id} not found`, HttpStatus.NOT_FOUND);
     }
     const updatedCategory = Object.assign(category, updateCategoryDto);
     return this.categoryRepository.save(updatedCategory);
@@ -47,8 +52,9 @@ export class CategoryService {
 
   async remove(id: number): Promise<void> {
     const category = await this.categoryRepository.findOne({ where: { id } });
+    console.log('category', category);
     if (!category) {
-      throw new Error(`Category with ID ${id} not found`);
+      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }
     await this.categoryRepository.remove(category);
   }

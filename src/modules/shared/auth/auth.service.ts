@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserEntity } from 'src/modules/v1/user/entities/user.entity';
 import { SignUpDto } from './dto/auth.signup.dto';
 import { generate } from 'otp-generator';
+import { MailSenderService } from '../mailsender/mailsender.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private mailSenderService: MailSenderService,
   ) {}
 
   async signUp(signupUserDto: SignUpDto): Promise<UserEntity> {
@@ -37,7 +39,12 @@ export class AuthService {
 
     user = await this.userService.updateUser(+user.id, user);
     // Send OTP via email
-    // await this.emailService.sendOTP(signupUserDto.email, user.otp);
+    this.mailSenderService.sendWelcomeEmailWithOTP({
+      to: user.email,
+      subject: 'Welcome to EasyMart',
+      text: `OTP is ${user.otp}`,
+      user: user,
+    });
     return user;
   }
 

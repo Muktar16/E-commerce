@@ -12,7 +12,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
   }));
-  await app.listen(+configService.get('PORT') || 9000);
+  await app.listen(+configService.get('APP_PORT') || 9000);
 }
 
 bootstrap();
