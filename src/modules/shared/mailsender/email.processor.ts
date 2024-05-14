@@ -44,12 +44,13 @@ export class EmailProcessor {
     );
   }
 
-  @Process('welcome')
+  @Process('otp')
   async sendWelcomeEmail(job: Job<Mail>) {
     const { data } = job.data;
+    console.log({data});
     await this.mailService.sendMail({
       ...data,
-      template: 'welcome',
+      template: 'otp',
       context: {
         user: data.user,
         text: data.text,
@@ -57,19 +58,18 @@ export class EmailProcessor {
     });
   }
 
-  @Process('verify-email')
-  async sendVerifyEmail(job: Job<Mail>) {
+  @Process('super-admin-will-approve')
+  async sendSuperAdminWillApproveEmail(job: Job<Mail>) {
     const { data } = job.data;
 
     await this.mailService.sendMail({
       ...data,
-      template: 'verify-email',
+      template: 'super-admin-will-approve',
       context: {
         user: data.user,
         text: data.text,
       },
     });
-    return { jobId: job.id };
   }
 
   @Process('reset-password')
@@ -84,4 +84,32 @@ export class EmailProcessor {
       },
     });
   }
+
+//   @Process('verify-email')
+//   async sendVerifyEmail(job: Job<Mail>) {
+//     const { data } = job.data;
+
+//     await this.mailService.sendMail({
+//       ...data,
+//       template: 'verify-email',
+//       context: {
+//         user: data.user,
+//         text: data.text,
+//       },
+//     });
+//     return { jobId: job.id };
+//   }
+
+//   @Process('reset-password')
+//   async sendResetPasswordEmail(job: Job<Mail>) {
+//     const { data } = job.data;
+
+//     await this.mailService.sendMail({
+//       ...data,
+//       template: 'reset-password',
+//       context: {
+//         user: data.user,
+//       },
+//     });
+//   }
 }

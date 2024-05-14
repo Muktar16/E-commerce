@@ -4,18 +4,23 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { UserService } from 'src/modules/v1/user/user.service';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserEntity } from 'src/modules/v1/user/entities/user.entity';
-import { SignUpDto } from './dto/auth.signup.dto';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import * as moment from "moment";
 import { generate } from 'otp-generator';
+import { UserEntity } from 'src/modules/v1/user/entities/user.entity';
+import { UserService } from 'src/modules/v1/user/user.service';
 import { MailSenderService } from '../mailsender/mailsender.service';
+import { AdminSignUpDto } from './dto/auth.admin-signup.dto';
+import { EmailOnlyDto } from './dto/auth.email-only.dto';
+import { SignUpDto } from './dto/auth.signup.dto';
+import { VerifyEmailDto } from './dto/auth.verify-email.dto';
+import { ChangePasswordDto } from './dto/auth.change-password.dto';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
@@ -23,8 +28,12 @@ export class AuthService {
     private mailSenderService: MailSenderService,
   ) {}
 
-  async signUp(signupUserDto: SignUpDto): Promise<UserEntity> {
-    const userExist = await this.userService.findOneByEmail(signupUserDto.email);
+  async signUp(
+    signupUserDto: SignUpDto,
+  ): Promise<{ user: UserEntity; message: string }> {
+    const userExist = await this.userService.findOneByEmail(
+      signupUserDto.email,
+    );
     if (userExist) {
       throw new BadRequestException('User already exists');
     }
@@ -45,19 +54,168 @@ export class AuthService {
       text: `OTP is ${user.otp}`,
       user: user,
     });
-    return user;
+    return { user, message: 'OTP sent to your email' };
   }
 
+  async verifyEmail(verifyEmailDto: VerifyEmailDto): Promise<{user:UserEntity,message:string}> {
+    const user = await this.userService.findOneByEmail(verifyEmailDto.email);
+    if (!user) {
+      throw new HttpException('Email Not found', HttpStatus.NOT_FOUND);
+    }
+    console.log('user.otp', user.otp, verifyEmailDto.otp);
+    if (user.otp !== verifyEmailDto.otp) {
+      throw new HttpException('Invalid OTP', HttpStatus.BAD_REQUEST);
+    }
+    
+    const offsetInMilliseconds = new Date().getTimezoneOffset() * 60000; 
+    const currentTime = moment();
+    const updatedAt = moment(user.updatedAt).subtract(offsetInMilliseconds, 'milliseconds');
+    const minutesSinceUpdatedAt = currentTime.diff(updatedAt, 'minutes');
+  
+    if (minutesSinceUpdatedAt > 5) {
+      throw new HttpException('OTP expired', HttpStatus.BAD_REQUEST);
+    }
+    user.isVerified = true;
+    user.otp = null;
+    let updatedUser = await this.userService.updateUser(+user.id, user);
+    return { user: updatedUser, message: 'User verified successfully' };
+  }
+
+  async resendOTP(emailOnlyDto: EmailOnlyDto): Promise<string> {
+    const user = await this.userService.findOneByEmail(emailOnlyDto.email);
+    if (!user) {
+      throw new HttpException('Email Not found', HttpStatus.NOT_FOUND);
+    }
+    if(user.isVerified){
+      throw new HttpException('User already verified', HttpStatus.BAD_REQUEST);
+    }
+    if(user.role !== 'user'){
+      throw new HttpException('Only normal user can request for OTP', HttpStatus.BAD_REQUEST);
+    }
+    user.otp = generate(6, {
+      digits: true,
+      lowerCaseAlphabets: false,
+      upperCaseAlphabets: false,
+      specialChars: false,
+    });
+    await this.userService.updateUser(+user.id, user);
+    this.mailSenderService.sendWelcomeEmailWithOTP({
+      to: user.email,
+      subject: 'Resend OTP',
+      text: `OTP is ${user.otp}`,
+      user: user,
+    });
+    return 'OTP sent to your email';
+  }
+  
+
+  async adminSignUp(
+    adminSignupDto: AdminSignUpDto,
+  ): Promise<{ user: any; message: string }> {
+    const userExist = await this.userService.findOneByEmail(
+      adminSignupDto.email,
+    );
+    if (userExist) {
+      throw new BadRequestException('User already exists');
+    }
+    adminSignupDto.password = await bcrypt.hash(adminSignupDto.password, 10);
+    const user = await this.userService.createUser(adminSignupDto);
+    this.mailSenderService.sendSuperAdminWillApproveEmail({
+      to: adminSignupDto.email,
+      subject: 'Waiting for approval at EasyMart Admin Panel',
+      text: `Your account will be approved by the super admin`,
+      user: adminSignupDto,
+    });
+    return {
+      user,
+      message: 'Your account will be approved by the super admin',
+    };
+  }
+
+  async approveAdmin(
+    emailOnlyDto: EmailOnlyDto,
+  ): Promise<{ user: UserEntity; message: string }> {
+    const user = await this.userService.findOneByEmail(emailOnlyDto.email);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (user.isVerified) {
+      throw new HttpException('User already approved or this email already have a user account.', HttpStatus.BAD_REQUEST);
+    }
+    if(user.role !== 'admin'){
+      throw new HttpException('Only admin account can be approved by super admin', HttpStatus.BAD_REQUEST);
+    }
+    user.isVerified = true;
+    const updatedUser = await this.userService.updateUser(+user.id, user);
+    return { user: updatedUser, message: 'Admin approved successfully' };
+  }
 
   async signIn(userInfo: UserEntity): Promise<any> {
     const token = await this.generateToken(userInfo);
-    return { accessToken: token, user:userInfo };
+    return { accessToken: token, user: userInfo };
   }
 
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<string> {
+    const user = await this.userService.getUserWithPassword(changePasswordDto.email);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (!user.isVerified) {
+      throw new HttpException('User not verified', HttpStatus.BAD_REQUEST);
+    }
+    const isPasswordValid = await bcrypt.compare(
+      changePasswordDto.currentPassword,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
+    }
+    user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
+    await this.userService.updateUser(+user.id, user);
+    return 'Password changed successfully';
+  }
 
-  private generateToken(user:UserEntity): Promise<string> {
+  async forgotPassword(emailOnlyDto: EmailOnlyDto): Promise<string> {
+    const user = await this.userService.findOneByEmail(emailOnlyDto.email);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (!user.isVerified) {
+      throw new HttpException('User not verified', HttpStatus.BAD_REQUEST);
+    }
+    
+    // Generate a unique reset password token
+    const resetToken = randomBytes(32).toString('hex'); // Generate a random token of 32 bytes
+
+    // Associate the token with the user's account
+    user.resetPasswordToken = resetToken;
+    user.tokenExpiry = new Date(Date.now() + 3600000); // Set expiration time to 1 hour from now
+
+    // Update the user record with the reset password token
+    await this.userService.updateUser(+user.id, user);
+
+    // Construct the reset password URL
+    const resetPasswordUrl = `${this.configService.get('ORIGIN')}/reset-password?token=${resetToken}`;
+
+    // Send the reset password URL in the email
+    this.mailSenderService.sendResetPasswordEmail({
+      to: user.email,
+      subject: 'Forgot Password',
+      text: `<a>${resetPasswordUrl}</a>`,
+      user: user,
+    });
+
+    return 'Reset password instructions sent to your email';
+}
+
+  private generateToken(user: UserEntity): Promise<string> {
     return this.jwtService.signAsync(
-      { id:user.id, email:user.email, phoneNumber:user.phoneNumber, role:user.role },
+      {
+        id: user.id,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        role: user.role,
+      },
       {
         expiresIn: this.configService.get<string>('JWT_EXPIRES_IN'),
         issuer: 'brainstation-23',
@@ -65,6 +223,4 @@ export class AuthService {
       },
     );
   }
-
 }
-

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString, MinLength } from "class-validator";
+import { IsEmail, IsEmpty, IsNotEmpty, IsPhoneNumber, IsString, MinLength } from "class-validator";
 
 export class SignUpDto {
     @IsString()
@@ -23,4 +23,5 @@ export class SignUpDto {
     @ApiProperty({example: '123456', type: 'string', description: 'The password of the user'})
     @MinLength(6, {message: 'Password must be at least 6 characters long'})
     password: string;
+
 }

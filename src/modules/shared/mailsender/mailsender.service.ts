@@ -37,17 +37,27 @@ export class MailSenderService {
   }
 
   async sendWelcomeEmailWithOTP(data: Mail) {
-    const job = await this.emailQueue.add('welcome', { data });
+    const job = await this.emailQueue.add('otp', { data });
     return { jobId: job.id };
   }
 
-  async sendVerifyEmail(data: Mail) {
-    const job = await this.emailQueue.add('verify-email', { data });
+  async sendSuperAdminWillApproveEmail(data: Mail) {
+    const job = await this.emailQueue.add('super-admin-will-approve', { data });
     return { jobId: job.id };
   }
 
   async sendResetPasswordEmail(data: Mail) {
-    const job = await this.emailQueue.add('verify-email', { data });
+    const job = await this.emailQueue.add('reset-password', { data });
     return { jobId: job.id };
   }
+
+//   async sendVerifyEmail(data: Mail) {
+//     const job = await this.emailQueue.add('verify-email', { data });
+//     return { jobId: job.id };
+//   }
+
+//   async sendResetPasswordEmail(data: Mail) {
+//     const job = await this.emailQueue.add('verify-email', { data });
+//     return { jobId: job.id };
+//   }
 }

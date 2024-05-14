@@ -15,10 +15,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private readonly userService: UserService) {
     super({ usernameField: 'email', passwordField: 'password'});
   }
-
   
   async validate(email: string, password: string): Promise<UserEntity> {
-    console.log('email', email, password);
     const user = await this.userService.getUserWithPassword(email);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);

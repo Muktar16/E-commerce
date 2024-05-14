@@ -40,7 +40,9 @@ export class UserService {
   }
 
   async updateUser(id: number, user: any) {
+    delete user.updatedAt;
     await this.userRepository.update(id, user);
+    // this.userRepository.save(user);
     return await this.userRepository.findOne({ where: { id } });
   }
 }

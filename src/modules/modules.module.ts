@@ -23,8 +23,8 @@ import { GuardsModule } from './shared/guards/guards.module';
         database: configService.get<string>('DB_NAME'),
         migrations:['dist/migrations/*{.ts,.js}'],
         entities: [__dirname + '/**/*.entity{.js,.ts}'],
-        synchronize: configService.get<boolean>('DB_SYNC'),
-        logging: configService.get<boolean>('DB_LOGGING')
+        synchronize: true,
+        logging: true,
       }),
       inject: [ConfigService],
     }),

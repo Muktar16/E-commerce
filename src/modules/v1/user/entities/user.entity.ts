@@ -15,7 +15,7 @@ export class UserEntity extends AbstractEntity<UserEntity>{
     @Column({name: 'password', type: 'text', select: false})
     password: string;
 
-    @Column({ name: 'is_verified', default: true })
+    @Column({ name: 'is_verified', default: false })
     isVerified: boolean;
 
     @Column({ name: 'phone_number', nullable: true })
@@ -26,6 +26,16 @@ export class UserEntity extends AbstractEntity<UserEntity>{
     @Column({ name: 'otp', nullable: true })
     otp: number;
 
+    @Exclude()
+    @Column({ name: 'reset_password_token',type:'text', default: true })
+    @IsOptional()
+    resetPasswordToken: string;
+
+    @Exclude()
+    @Column({ name: 'token_expiry', nullable: true })
+    @IsOptional()
+    tokenExpiry: Date;
+
     @Column({name: 'role', type: 'text', default: Roles.USER})
-    role: string
+    role: string;
 }

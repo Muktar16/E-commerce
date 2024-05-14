@@ -10,8 +10,7 @@ import { MailSenderService } from './mailsender.service';
   imports: [
     ConfigModule,
     MailerModule.forRootAsync({
-      imports: [ConfigModule.forRoot({isGlobal: true,
-        envFilePath: '.env',})],
+      imports: [ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' })],
       useFactory: async (configService: ConfigService) => ({
         transport: {
           host: configService.get('SMTP_HOST'),
@@ -50,5 +49,4 @@ import { MailSenderService } from './mailsender.service';
   providers: [MailSenderService, EmailProcessor],
   exports: [MailSenderService],
 })
-
 export class MailSenderModule {}
