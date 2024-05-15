@@ -38,7 +38,7 @@ export class AuthController {
   }
 
   @Post('approve-admin')
-  @UseGuards(AuthGuard('jwt'), new RoleGuard(Roles.SUPERADMIN))
+  @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.SUPERADMIN]))
   async approveAdmin(@Body() emailOnlyDto: EmailOnlyDto): Promise<{user:UserEntity, message:string}> {
     return this.authService.approveAdmin(emailOnlyDto);
   }

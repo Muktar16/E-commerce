@@ -26,11 +26,11 @@ export class CategoryService {
   }
 
   async findAll(): Promise<Category[]> {
-    return this.categoryRepository.find();
+    return this.categoryRepository.find({where: {isDeleted: false}});
   }
 
   async findOne(id: number): Promise<Category> {
-    const category = await this.categoryRepository.findOne({ where: { id } });
+    const category = await this.categoryRepository.findOne({ where: { id, isDeleted:false } });
     if (!category) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }else{
@@ -46,16 +46,38 @@ export class CategoryService {
     if (!category) {
       throw new HttpException(`Category with ID ${id} not found`, HttpStatus.NOT_FOUND);
     }
+    delete category.updatedAt;
     const updatedCategory = Object.assign(category, updateCategoryDto);
     return this.categoryRepository.save(updatedCategory);
   }
 
   async remove(id: number): Promise<void> {
     const category = await this.categoryRepository.findOne({ where: { id } });
-    console.log('category', category);
     if (!category) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }
-    await this.categoryRepository.remove(category);
+    category.isDeleted = true;
+    category.deletedAt = new Date();
+    await this.categoryRepository.update(+category.id, category);
+  }
+
+  async restore(id: number): Promise<string> {
+    const category = await this.categoryRepository.findOne({ where: { id, isDeleted:true } });
+    if (!category) {
+      throw new HttpException('Category not found in deleted category list', HttpStatus.NOT_FOUND);
+    }
+    category.isDeleted = false;
+    category.deletedAt = null;
+    await this.categoryRepository.update(+category.id, category);
+    return "Category restored successfully"
+  }
+
+  async getItems(id: number): Promise<Category> {
+    const category = await this.categoryRepository.findOne({ where: { id, isDeleted:false }, relations: ['products']});
+    if (!category) {
+      throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
+    }
+    category.products = category.products.filter(product => !product.isDeleted);
+    return category;
   }
 }

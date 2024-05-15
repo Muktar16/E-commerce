@@ -13,7 +13,7 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  @UseGuards(AuthGuard('jwt') ,new RoleGuard(Roles.ADMIN))
+  @UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.ADMIN,Roles.SUPERADMIN]))
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
   }
@@ -29,15 +29,26 @@ export class CategoryController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard('jwt') ,new RoleGuard(Roles.ADMIN))
+  @UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     console.log('updateCategoryDto', updateCategoryDto, id);
     return this.categoryService.update(+id, updateCategoryDto);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('jwt') ,new RoleGuard(Roles.ADMIN))
+  @UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   remove(@Param('id') id: string) {
     return this.categoryService.remove(+id);
+  }
+
+  @Get('restore/:id')
+  @UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
+  restore(@Param('id') id: string) {
+    return this.categoryService.restore(+id);
+  }
+
+  @Get('items/:id')
+  getItems(@Param('id') id: string) {
+    return this.categoryService.getItems(+id);
   }
 }

@@ -1,27 +1,88 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ProductEntity } from './entities/product.entity';
+import { Repository } from 'typeorm';
+import { CategoryService } from '../category/category.service';
 
 @Injectable()
 export class ProductService {
-  create(createProductDto: CreateProductDto) {
-    console.log({createProductDto})
-    return 'This action adds a new product';
+  constructor(
+    @InjectRepository(ProductEntity)
+    private productRepository: Repository<ProductEntity>,
+    private categoryService: CategoryService,
+  ) {}
+  async create(createProductDto: CreateProductDto) {
+    const productExist = await this.findProductBySku(createProductDto.sku);
+    if (productExist) {
+      throw new HttpException('Product with this SKU already exists', HttpStatus.BAD_REQUEST);
+    }
+    const product = this.productRepository.create(createProductDto);
+    product.category = await this.categoryService.findOne(
+      createProductDto.categoryId,
+    );
+    return this.productRepository.save(product);
   }
 
-  findAll() {
-    return `This action returns all product`;
+  async findAll() {
+    return this.productRepository.find({where:{isDeleted:false},relations:['category']});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: number) {
+    const product = this.productRepository.findOne({ where: { id, isDeleted:false }, relations:['category'] });
+    if (!product) {
+      throw new HttpException(`Product with ID ${id} not found`, HttpStatus.NOT_FOUND);
+    }
+    return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: number, updateProductDto: UpdateProductDto) {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) {
+      throw new HttpException(`Product with ID ${id} not found`, HttpStatus.NOT_FOUND);
+    }
+    const updatedProduct = Object.assign(product, updateProductDto);
+    return this.updateById(+updatedProduct.id, updatedProduct);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async updateById(id: number, updateProductDto: any) {
+    delete updateProductDto.updatedAt;
+    if(updateProductDto.categoryId){
+      updateProductDto.category = await this.categoryService.findOne(
+        updateProductDto.categoryId,
+      );
+      delete updateProductDto.categoryId;
+    }
+    await this.productRepository.update(id, updateProductDto);
+    return await this.productRepository.findOne({ where: { id }, relations:['category'] });
+  }
+
+  async remove(id: number) {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) {
+      throw new HttpException(`Product with ID ${id} not found`, HttpStatus.NOT_FOUND);
+    }
+    product.isDeleted = true;
+    product.deletedAt = new Date();
+    return await this.productRepository.update(+product.id, product);
+  }
+
+  async restore(id: number) {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) {
+      throw new HttpException(`Product with ID ${id} not found`, HttpStatus.NOT_FOUND);
+    }
+    product.isDeleted = false;
+    product.deletedAt = null;
+    return await this.productRepository.update(+product.id, product);
+  }
+
+  async getDeleted() {
+    return await this.productRepository.find({ where: { isDeleted: true }, relations:['category']});
+  }
+
+  private async findProductBySku(sku: string) {
+    return await this.productRepository.findOne({ where: { sku } });
   }
 }

@@ -10,5 +10,6 @@ import { CategoryController } from './category.controller';
   imports: [TypeOrmModule.forFeature([Category])], // Import the TypeOrmModule and specify the Category entity
   providers: [CategoryService], // Add CategoryService as a provider
   controllers: [CategoryController], // Add CategoryController
+  exports: [CategoryService], // Export CategoryService
 })
 export class CategoryModule {}

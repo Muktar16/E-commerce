@@ -4,6 +4,7 @@ import {
     UpdateDateColumn,
     DeleteDateColumn,
     Entity,
+    Column,
   } from 'typeorm';
   import { instanceToPlain } from 'class-transformer';
   @Entity()
@@ -27,6 +28,9 @@ import {
       nullable: true,
     })
     public deletedAt: Date;
+
+    @Column({ name: 'is_deleted', type: 'boolean', default: false })
+    public isDeleted: boolean;
   
     toJSON() {
       return instanceToPlain(this);
