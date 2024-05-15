@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -7,6 +7,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { RoleGuard } from 'src/modules/shared/guards/role.guard';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import { ProductEntity } from './entities/product.entity';
+import { ProductFindAllQueryParamsDto } from './dto/product-queryparams.dio';
 @ApiTags('Product')
 @Controller('product')
 export class ProductController {
@@ -19,8 +20,8 @@ export class ProductController {
   }
 
   @Get()
-  findAll() {
-    return this.productService.findAll();
+  findAll(@Query() queryParams: any){
+    return this.productService.findAll(queryParams);
   }
 
   @Get('deleted')
