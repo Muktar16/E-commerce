@@ -7,7 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import * as moment from "moment";
+import * as moment from 'moment';
 import { generate } from 'otp-generator';
 import { UserEntity } from 'src/modules/v1/user/entities/user.entity';
 import { UserService } from 'src/modules/v1/user/user.service';
@@ -18,6 +18,7 @@ import { SignUpDto } from './dto/auth.signup.dto';
 import { VerifyEmailDto } from './dto/auth.verify-email.dto';
 import { ChangePasswordDto } from './dto/auth.change-password.dto';
 import { randomBytes } from 'crypto';
+import { ResetPasswordDto } from './dto/auth.reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -57,7 +58,9 @@ export class AuthService {
     return { user, message: 'OTP sent to your email' };
   }
 
-  async verifyEmail(verifyEmailDto: VerifyEmailDto): Promise<{user:UserEntity,message:string}> {
+  async verifyEmail(
+    verifyEmailDto: VerifyEmailDto,
+  ): Promise<{ user: UserEntity; message: string }> {
     const user = await this.userService.findOneByEmail(verifyEmailDto.email);
     if (!user) {
       throw new HttpException('Email Not found', HttpStatus.NOT_FOUND);
@@ -66,12 +69,15 @@ export class AuthService {
     if (user.otp !== verifyEmailDto.otp) {
       throw new HttpException('Invalid OTP', HttpStatus.BAD_REQUEST);
     }
-    
-    const offsetInMilliseconds = new Date().getTimezoneOffset() * 60000; 
+
+    const offsetInMilliseconds = new Date().getTimezoneOffset() * 60000;
     const currentTime = moment();
-    const updatedAt = moment(user.updatedAt).subtract(offsetInMilliseconds, 'milliseconds');
+    const updatedAt = moment(user.updatedAt).subtract(
+      offsetInMilliseconds,
+      'milliseconds',
+    );
     const minutesSinceUpdatedAt = currentTime.diff(updatedAt, 'minutes');
-  
+
     if (minutesSinceUpdatedAt > 5) {
       throw new HttpException('OTP expired', HttpStatus.BAD_REQUEST);
     }
@@ -86,11 +92,14 @@ export class AuthService {
     if (!user) {
       throw new HttpException('Email Not found', HttpStatus.NOT_FOUND);
     }
-    if(user.isVerified){
+    if (user.isVerified) {
       throw new HttpException('User already verified', HttpStatus.BAD_REQUEST);
     }
-    if(user.role !== 'user'){
-      throw new HttpException('Only normal user can request for OTP', HttpStatus.BAD_REQUEST);
+    if (user.role !== 'user') {
+      throw new HttpException(
+        'Only normal user can request for OTP',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     user.otp = generate(6, {
       digits: true,
@@ -107,7 +116,6 @@ export class AuthService {
     });
     return 'OTP sent to your email';
   }
-  
 
   async adminSignUp(
     adminSignupDto: AdminSignUpDto,
@@ -140,10 +148,16 @@ export class AuthService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     if (user.isVerified) {
-      throw new HttpException('User already approved or this email already have a user account.', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'User already approved or this email already have a user account.',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    if(user.role !== 'admin'){
-      throw new HttpException('Only admin account can be approved by super admin', HttpStatus.BAD_REQUEST);
+    if (user.role !== 'admin') {
+      throw new HttpException(
+        'Only admin account can be approved by super admin',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     user.isVerified = true;
     const updatedUser = await this.userService.updateUser(+user.id, user);
@@ -156,7 +170,9 @@ export class AuthService {
   }
 
   async changePassword(changePasswordDto: ChangePasswordDto): Promise<string> {
-    const user = await this.userService.getUserWithPassword(changePasswordDto.email);
+    const user = await this.userService.getUserWithPassword(
+      changePasswordDto.email,
+    );
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -183,15 +199,9 @@ export class AuthService {
     if (!user.isVerified) {
       throw new HttpException('User not verified', HttpStatus.BAD_REQUEST);
     }
-    
-    // Generate a unique reset password token
-    const resetToken = randomBytes(32).toString('hex'); // Generate a random token of 32 bytes
-
-    // Associate the token with the user's account
+    const resetToken = randomBytes(32).toString('hex');
     user.resetPasswordToken = resetToken;
-    user.tokenExpiry = new Date(Date.now() + 3600000); // Set expiration time to 1 hour from now
-
-    // Update the user record with the reset password token
+    user.tokenExpiry = new Date(Date.now() + 3600000);
     await this.userService.updateUser(+user.id, user);
 
     // Construct the reset password URL
@@ -201,12 +211,35 @@ export class AuthService {
     this.mailSenderService.sendResetPasswordEmail({
       to: user.email,
       subject: 'Forgot Password',
-      text: `<a>${resetPasswordUrl}</a>`,
+      text: `${resetPasswordUrl}`,
       user: user,
     });
 
     return 'Reset password instructions sent to your email';
-}
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<string> {
+    const user = await this.userService.findOneByResetToken(
+      resetPasswordDto.token,
+    );
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (!user.isVerified) {
+      throw new HttpException('User not verified', HttpStatus.BAD_REQUEST);
+    }
+    if (user.resetPasswordToken !== resetPasswordDto.token) {
+      throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
+    }
+    if (new Date() > user.tokenExpiry) {
+      throw new HttpException('Token expired', HttpStatus.BAD_REQUEST);
+    }
+    user.password = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+    user.resetPasswordToken = null;
+    user.tokenExpiry = null;
+    await this.userService.updateUser(+user.id, user);
+    return 'Password reset successfully';
+  }
 
   private generateToken(user: UserEntity): Promise<string> {
     return this.jwtService.signAsync(

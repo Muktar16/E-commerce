@@ -11,6 +11,7 @@ import { VerifyEmailDto } from './dto/auth.verify-email.dto';
 import { EmailOnlyDto } from './dto/auth.email-only.dto';
 import { SignInDto } from './dto/auth.signin.dto';
 import { ChangePasswordDto } from './dto/auth.change-password.dto';
+import { ResetPasswordDto } from './dto/auth.reset-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -62,5 +63,10 @@ export class AuthController {
   @Post('forgot-password')
   async forgotPassword(@Body() emailOnlyDto:EmailOnlyDto) : Promise<string> {
     return this.authService.forgotPassword(emailOnlyDto);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() resePasswordDto:ResetPasswordDto) : Promise<string> {
+    return this.authService.resetPassword(resePasswordDto);
   }
 }

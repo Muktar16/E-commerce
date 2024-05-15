@@ -5,7 +5,6 @@ import { Mail } from './email.interface';
 
 @Injectable()
 export class MailSenderService {
-
   logger = new Logger('RedisQueue');
   constructor(@InjectQueue('email') private emailQueue: Queue) {
     this.init();
@@ -50,14 +49,4 @@ export class MailSenderService {
     const job = await this.emailQueue.add('reset-password', { data });
     return { jobId: job.id };
   }
-
-//   async sendVerifyEmail(data: Mail) {
-//     const job = await this.emailQueue.add('verify-email', { data });
-//     return { jobId: job.id };
-//   }
-
-//   async sendResetPasswordEmail(data: Mail) {
-//     const job = await this.emailQueue.add('verify-email', { data });
-//     return { jobId: job.id };
-//   }
 }

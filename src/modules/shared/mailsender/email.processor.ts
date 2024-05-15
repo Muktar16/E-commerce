@@ -75,12 +75,12 @@ export class EmailProcessor {
   @Process('reset-password')
   async sendResetPasswordEmail(job: Job<Mail>) {
     const { data } = job.data;
-
     await this.mailService.sendMail({
       ...data,
       template: 'reset-password',
       context: {
         user: data.user,
+        text: data.text,
       },
     });
   }

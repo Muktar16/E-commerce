@@ -27,7 +27,7 @@ export class UserEntity extends AbstractEntity<UserEntity>{
     otp: number;
 
     @Exclude()
-    @Column({ name: 'reset_password_token',type:'text', default: true })
+    @Column({ name: 'reset_password_token',type:'text', nullable: true})
     @IsOptional()
     resetPasswordToken: string;
 

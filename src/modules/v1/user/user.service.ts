@@ -45,4 +45,8 @@ export class UserService {
     // this.userRepository.save(user);
     return await this.userRepository.findOne({ where: { id } });
   }
+
+  async findOneByResetToken(token: string) {
+    return await this.userRepository.findOne({ where: { resetPasswordToken: token } });
+  }
 }
