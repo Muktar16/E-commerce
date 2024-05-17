@@ -15,7 +15,11 @@ export class UserService {
   }
 
   async findOneById(id: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ 
+      where: { id }, 
+      relations: { cart: {cartProducts:{product:true}}},
+    });
+    console.log(user)
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -48,5 +52,16 @@ export class UserService {
 
   async findOneByResetToken(token: string) {
     return await this.userRepository.findOne({ where: { resetPasswordToken: token } });
+  }
+
+  async getUserWithCart(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['cart'],
+    });
+    if (!user || !user.cart) {
+      throw new HttpException('User or user cart not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
   }
 }

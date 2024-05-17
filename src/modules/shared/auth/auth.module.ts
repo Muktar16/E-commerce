@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { MailSenderModule } from '../mailsender/mailsender.module';
+import { CartModule } from 'src/modules/v1/cart/cart.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MailSenderModule } from '../mailsender/mailsender.module';
     JwtModule,
     PassportModule,
     MailSenderModule,
+    CartModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

@@ -19,6 +19,8 @@ import { VerifyEmailDto } from './dto/auth.verify-email.dto';
 import { ChangePasswordDto } from './dto/auth.change-password.dto';
 import { randomBytes } from 'crypto';
 import { ResetPasswordDto } from './dto/auth.reset-password.dto';
+import { Roles } from 'src/utility/common/user-roles.enum';
+import { CartService } from 'src/modules/v1/cart/cart.service';
 
 @Injectable()
 export class AuthService {
@@ -27,6 +29,7 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailSenderService: MailSenderService,
+    private cartService: CartService,
   ) {}
 
   async signUp(
@@ -46,7 +49,6 @@ export class AuthService {
       upperCaseAlphabets: false,
       specialChars: false,
     });
-
     user = await this.userService.updateUser(+user.id, user);
     // Send OTP via email
     this.mailSenderService.sendWelcomeEmailWithOTP({
@@ -83,6 +85,10 @@ export class AuthService {
     }
     user.isVerified = true;
     user.otp = null;
+    // Create cart for user
+    if(user.role === Roles.USER){
+      this.cartService.createCart({userId:user.id});
+    }
     let updatedUser = await this.userService.updateUser(+user.id, user);
     return { user: updatedUser, message: 'User verified successfully' };
   }

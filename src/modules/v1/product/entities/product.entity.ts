@@ -1,6 +1,8 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { Category } from 'src/modules/v1/category/entities/category.entity';
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, ManyToMany, OneToMany } from 'typeorm';
+import { CartEntity } from '../../cart/entities/cart.entity';
+import { CartProductEntity } from '../../cart/entities/cart-products.entity';
 
 @Entity({ name: 'product', schema: 'ecommerce' })
 export class ProductEntity extends AbstractEntity<ProductEntity> {
@@ -26,4 +28,7 @@ export class ProductEntity extends AbstractEntity<ProductEntity> {
   @ManyToOne(() => Category, category => category.products) // Many-to-One relationship with Category
   @JoinColumn({ name: 'category' }) // Define the join column
   category: Category; // Define the property for the relationship
+
+  // @OneToMany(() => CartProductEntity, cartProduct => cartProduct.cart)
+  // public cartProducts: CartProductEntity[];
 }
