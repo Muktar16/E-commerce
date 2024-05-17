@@ -17,12 +17,10 @@ export class CartService {
   ) {}
 
   async getCart(userId: number) {
-    const res = await this.cartProductRepository.findOne({
-      where: { id: userId },
-      relations: { product: true, cart: true },
+    return await this.cartRepository.findOne({
+      where: { userId, isDeleted: false },
+      relations: ['cartProducts', 'cartProducts.product'],
     });
-    console.log(res);
-    return res;
   }
 
   async createCart(cartInfo: { userId: number }) {
@@ -47,12 +45,12 @@ export class CartService {
       relations: ['cartProducts', 'cartProducts.product'],
     });
 
-    // const existingProduct = cart.cartProducts.find((cp) => cp.product.id === itemInfo.productId);
-    // if (existingProduct) {
-    //   existingProduct.quantity = itemInfo.quantity;
-    //   await this.cartProductRepository.save(existingProduct);
-    //   return existingProduct;
-    // }
+    const existingProduct = cart.cartProducts.find((cp) => cp.product.id === itemInfo.productId);
+    if (existingProduct) {
+      existingProduct.quantity = itemInfo.quantity;
+      await this.cartProductRepository.save(existingProduct);
+      return existingProduct;
+    }
 
     const cartProduct = await this.cartProductRepository.create({
       quantity: itemInfo.quantity,

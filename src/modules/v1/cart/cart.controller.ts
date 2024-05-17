@@ -7,19 +7,18 @@ import { AddItemDto } from './dto/add-item.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Cart')
+@UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.USER]))
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post('add-item')
-  @UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.USER]))
   create(@Body() item: AddItemDto, @Req() req: any){
     return this.cartService.addItemToCart(item, req.user.id);
   }
 
   @Get('get-cart')
-  // @UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.USER]))
   getCart(@Req() req: any){
-    return this.cartService.getCart(2);
+    return this.cartService.getCart(req.user.id);
   }
 }
