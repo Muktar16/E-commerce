@@ -1,5 +1,5 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
-import { Category } from 'src/modules/v1/category/entities/category.entity';
+import { Category } from 'src/modules/category/entities/category.entity';
 import { Entity, Column, ManyToOne, JoinColumn, ManyToMany, OneToMany } from 'typeorm';
 import { CartEntity } from '../../cart/entities/cart.entity';
 import { CartProductEntity } from '../../cart/entities/cart-products.entity';

@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
-import { UserEntity } from 'src/modules/v1/user/entities/user.entity';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import { RoleGuard } from '../guards/role.guard';
 import { AuthService } from './auth.service';

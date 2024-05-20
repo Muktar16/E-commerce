@@ -7,8 +7,8 @@ import {
 import { PassportStrategy } from '@nestjs/passport';
 import * as bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
-import { UserEntity } from 'src/modules/v1/user/entities/user.entity';
-import { UserService } from 'src/modules/v1/user/user.service';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
+import { UserService } from 'src/modules/user/user.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

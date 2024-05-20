@@ -1,6 +1,6 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
+import { ProductEntity } from 'src/modules/product/entities/product.entity';
 import { Entity, Column, OneToMany, Index } from 'typeorm';
-import { ProductEntity } from '../../product/entities/product.entity';
 
 @Entity({ name: 'category', schema: 'ecommerce' })
 @Index(['name'], { unique: true })

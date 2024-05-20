@@ -9,8 +9,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
 import { generate } from 'otp-generator';
-import { UserEntity } from 'src/modules/v1/user/entities/user.entity';
-import { UserService } from 'src/modules/v1/user/user.service';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
+import { UserService } from 'src/modules/user/user.service';
 import { MailSenderService } from '../mailsender/mailsender.service';
 import { AdminSignUpDto } from './dto/auth.admin-signup.dto';
 import { EmailOnlyDto } from './dto/auth.email-only.dto';
@@ -20,7 +20,7 @@ import { ChangePasswordDto } from './dto/auth.change-password.dto';
 import { randomBytes } from 'crypto';
 import { ResetPasswordDto } from './dto/auth.reset-password.dto';
 import { Roles } from 'src/utility/common/user-roles.enum';
-import { CartService } from 'src/modules/v1/cart/cart.service';
+import { CartService } from 'src/modules/cart/cart.service';
 
 @Injectable()
 export class AuthService {

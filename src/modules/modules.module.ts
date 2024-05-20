@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedModule } from '../shared/shared.module';
-import { V1Module } from './v1/v1.module';
 import { GuardsModule } from '../shared/guards/guards.module';
 
 @Module({
@@ -29,7 +28,6 @@ import { GuardsModule } from '../shared/guards/guards.module';
       inject: [ConfigService],
     }),
     ConfigModule,
-    V1Module,
     SharedModule,
     GuardsModule,
   ],
