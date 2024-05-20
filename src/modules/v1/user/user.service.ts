@@ -57,7 +57,7 @@ export class UserService {
   async getUserWithCart(userId: number) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['cart'],
+      relations: { cart: { cartProducts: { product: true } } },
     });
     if (!user || !user.cart) {
       throw new HttpException('User or user cart not found', HttpStatus.NOT_FOUND);

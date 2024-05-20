@@ -4,7 +4,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
-import { RoleGuard } from 'src/modules/shared/guards/role.guard';
+import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import { ProductEntity } from './entities/product.entity';
 import { ProductFindAllQueryParamsDto } from './dto/product-queryparams.dio';

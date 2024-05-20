@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
-import { RoleGuard } from 'src/modules/shared/guards/role.guard';
+import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
