@@ -25,7 +25,7 @@ export class AdminOrderController {
 
   @UseGuards(
     AuthGuard('jwt'),
-    new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN, Roles.DELIVERYBOY]),
+    new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN, Roles.DELIVERYPERSON]),
   )
   @Put('update-status/:id')
   update(

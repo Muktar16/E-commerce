@@ -10,7 +10,6 @@ import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
 import { generate } from 'otp-generator';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { UserService } from 'src/modules/user/user.service';
 import { MailSenderService } from '../mailsender/mailsender.service';
 import { AdminSignUpDto } from './dto/auth.admin-signup.dto';
 import { EmailOnlyDto } from './dto/auth.email-only.dto';
@@ -22,11 +21,12 @@ import { ResetPasswordDto } from './dto/auth.reset-password.dto';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import { CartService } from 'src/modules/cart/cart.service';
 import { ResponseType } from 'src/utility/interfaces/response.interface';
+import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
+    private userService: UserCrudService,
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailSenderService: MailSenderService,

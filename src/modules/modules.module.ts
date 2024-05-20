@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SharedModule } from '../shared/shared.module';
 import { GuardsModule } from '../shared/guards/guards.module';
 import { OrderModule } from './order/order.module';
+import { UserModule } from './user/user.module';
+import { CartModule } from './cart/cart.module';
+import { Category } from './category/entities/category.entity';
+import { CategoryModule } from './category/category.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -29,9 +33,12 @@ import { OrderModule } from './order/order.module';
       inject: [ConfigService],
     }),
     ConfigModule,
-    SharedModule,
     GuardsModule,
     OrderModule,
+    UserModule,
+    CartModule,
+    CategoryModule,
+    ProductModule,
   ],
 })
 export class ModulesModule {}

@@ -6,10 +6,10 @@ import { OrderedProduct } from 'src/utility/interfaces/ordered-product.interface
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderEntity } from '../entities/order.entity';
 import { Repository } from 'typeorm';
-import { UserService } from '../../user/user.service';
 import { ProductService } from '../../product/product.service';
 import { ResponseType } from 'src/utility/interfaces/response.interface';
 import { OrderStatus } from 'src/utility/common/order-status.enum';
+import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 
 @Injectable()
 export class UserOrderService {
@@ -17,7 +17,7 @@ export class UserOrderService {
     @InjectRepository(OrderEntity)
     private orderRepository: Repository<OrderEntity>,
     private cartService: CartService,
-    private userService: UserService,
+    private userService: UserCrudService,
     private productService: ProductService,
   ) {}
   async create(

@@ -6,12 +6,8 @@ import {
   SWAGGER_API_DESCRIPTION,
   SWAGGER_API_CURRENT_VERSION,
 } from './swagger.constants';
-import { ConfigService } from '@nestjs/config';
 
 export const setupSwagger = (app: INestApplication) => {
-  const configService = app.get(ConfigService);
-  const globalPrefix = configService.get<string>('GLOBAL_API_PREFIX') || '';
-
   const options = new DocumentBuilder()
     .setTitle(SWAGGER_API_NAME)
     .setDescription(SWAGGER_API_DESCRIPTION)
@@ -25,7 +21,7 @@ export const setupSwagger = (app: INestApplication) => {
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup(`${globalPrefix}/docs`, app, document);
+  SwaggerModule.setup(SWAGGER_API_ROOT, app, document);
 
   const logger = new Logger('Documentation');
   logger.log(`API Documentation is avaible at "/${SWAGGER_API_ROOT}"`);

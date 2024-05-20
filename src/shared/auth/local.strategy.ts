@@ -8,11 +8,11 @@ import { PassportStrategy } from '@nestjs/passport';
 import * as bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { UserService } from 'src/modules/user/user.service';
+import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly userService: UserService) {
+  constructor(private readonly userService: UserCrudService) {
     super({ usernameField: 'email', passwordField: 'password'});
   }
   
