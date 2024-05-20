@@ -1,5 +1,5 @@
 import { AbstractEntity } from "src/common/entities/abstract.entity";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { UserEntity } from "../../user/entities/user.entity";
 import { OrderedProduct } from "src/utility/interfaces/ordered-product.interface";
 import { OrderStatus } from "src/utility/common/order-status.enum";
@@ -23,5 +23,6 @@ export class OrderEntity extends AbstractEntity<OrderEntity>{
     orderDate: Date;
 
     @ManyToOne(() => UserEntity, user => user.id)
+    @JoinColumn()
     public user: UserEntity;
 }

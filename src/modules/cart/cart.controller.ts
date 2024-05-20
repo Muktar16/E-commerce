@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { AddItemDto } from './dto/add-item.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Cart')
 @UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.USER]))
@@ -12,6 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
+  @ApiBearerAuth()
   @Post('add-item')
   create(@Body() item: AddItemDto, @Req() req: any){
     return this.cartService.addItemToCart(item, req.user.id);
@@ -22,11 +23,14 @@ export class CartController {
     return this.cartService.removeItemFromCart(+productId, +req.user.id);
   }
 
+  @ApiBearerAuth()
   @Get('get-cart')
   getCart(@Req() req: any){
-    return this.cartService.getCart(req.user.id);
+    console.log(req.user);
+    return this.cartService.getCart(+req.user.id);
   }
 
+  @ApiBearerAuth()
   @Get('clear-cart')
   clearCart(@Req() req: any){
     return this.cartService.clearCart(req.user.id);

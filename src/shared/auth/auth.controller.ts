@@ -12,6 +12,7 @@ import { EmailOnlyDto } from './dto/auth.email-only.dto';
 import { SignInDto } from './dto/auth.signin.dto';
 import { ChangePasswordDto } from './dto/auth.change-password.dto';
 import { ResetPasswordDto } from './dto/auth.reset-password.dto';
+import { ResponseType } from 'src/utility/interfaces/response.interface';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -19,7 +20,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  async signup(@Body() signUpDto: SignUpDto): Promise<{user:UserEntity,message:string}> {
+  async signup(@Body() signUpDto: SignUpDto): Promise<ResponseType> {
     return this.authService.signUp(signUpDto);
   }
 
@@ -28,7 +29,7 @@ export class AuthController {
   async signin(
     @Body() signInDto: SignInDto,
     @Req() req: any,
-  ): Promise<{ accessToken: string; user: UserEntity }> {
+  ): Promise<ResponseType> {
     return this.authService.signIn(req.user);
   }
 
@@ -39,7 +40,7 @@ export class AuthController {
 
   @Post('approve-admin')
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.SUPERADMIN]))
-  async approveAdmin(@Body() emailOnlyDto: EmailOnlyDto): Promise<{user:UserEntity, message:string}> {
+  async approveAdmin(@Body() emailOnlyDto: EmailOnlyDto): Promise<ResponseType> {
     return this.authService.approveAdmin(emailOnlyDto);
   }
 
@@ -55,18 +56,18 @@ export class AuthController {
 
   @Post('change-password')
   @UseGuards(AuthGuard('jwt'))
-  async changePassword(@Body() changePasswordDto:ChangePasswordDto, @Req() req: any,) : Promise<string> {
+  async changePassword(@Body() changePasswordDto:ChangePasswordDto, @Req() req: any,) : Promise<ResponseType> {
     changePasswordDto.email = req.user.email; 
     return this.authService.changePassword(changePasswordDto);
   }
 
   @Post('forgot-password')
-  async forgotPassword(@Body() emailOnlyDto:EmailOnlyDto) : Promise<string> {
+  async forgotPassword(@Body() emailOnlyDto:EmailOnlyDto) : Promise<ResponseType> {
     return this.authService.forgotPassword(emailOnlyDto);
   }
 
   @Post('reset-password')
-  async resetPassword(@Body() resePasswordDto:ResetPasswordDto) : Promise<string> {
+  async resetPassword(@Body() resePasswordDto:ResetPasswordDto) : Promise<ResponseType> {
     return this.authService.resetPassword(resePasswordDto);
   }
 }

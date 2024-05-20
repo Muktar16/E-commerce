@@ -82,8 +82,9 @@ export class CartService {
       where: { userId, isDeleted: false },
       relations: ['cartProducts'],
     });
-    cart.cartProducts.forEach((cp) => {
+    cart.cartProducts.forEach(async(cp) => {
       cp.isDeleted = true;
+      await this.cartProductRepository.save(cp);
     });
     await this.cartProductRepository.softRemove(cart.cartProducts);
     return cart;

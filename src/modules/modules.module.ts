@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedModule } from '../shared/shared.module';
 import { GuardsModule } from '../shared/guards/guards.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { GuardsModule } from '../shared/guards/guards.module';
     ConfigModule,
     SharedModule,
     GuardsModule,
+    OrderModule,
   ],
 })
 export class ModulesModule {}

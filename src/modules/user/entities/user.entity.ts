@@ -44,6 +44,6 @@ export class UserEntity extends AbstractEntity<UserEntity>{
     @OneToOne(() => CartEntity, cart => cart.user)
     cart: CartEntity; // Define the one-to-one relation
 
-    @OneToMany(() => OrderEntity, order => order.user)
+    @OneToMany(() => OrderEntity, order => order.id)
     orders: OrderEntity[];
 }

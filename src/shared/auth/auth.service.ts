@@ -21,6 +21,7 @@ import { randomBytes } from 'crypto';
 import { ResetPasswordDto } from './dto/auth.reset-password.dto';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import { CartService } from 'src/modules/cart/cart.service';
+import { ResponseType } from 'src/utility/interfaces/response.interface';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +35,7 @@ export class AuthService {
 
   async signUp(
     signupUserDto: SignUpDto,
-  ): Promise<{ user: UserEntity; message: string }> {
+  ): Promise<ResponseType> {
     const userExist = await this.userService.findOneByEmail(
       signupUserDto.email,
     );
@@ -57,7 +58,7 @@ export class AuthService {
       text: `OTP is ${user.otp}`,
       user: user,
     });
-    return { user, message: 'OTP sent to your email' };
+    return { data:user, message: 'OTP sent to your email' };
   }
 
   async verifyEmail(
@@ -148,7 +149,7 @@ export class AuthService {
 
   async approveAdmin(
     emailOnlyDto: EmailOnlyDto,
-  ): Promise<{ user: UserEntity; message: string }> {
+  ): Promise<ResponseType> {
     const user = await this.userService.findOneByEmail(emailOnlyDto.email);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -167,15 +168,15 @@ export class AuthService {
     }
     user.isVerified = true;
     const updatedUser = await this.userService.updateUser(+user.id, user);
-    return { user: updatedUser, message: 'Admin approved successfully' };
+    return { data: {user: updatedUser}, message: 'Admin approved successfully' };
   }
 
-  async signIn(userInfo: UserEntity): Promise<any> {
+  async signIn(userInfo: UserEntity): Promise<ResponseType> {
     const token = await this.generateToken(userInfo);
-    return { accessToken: token, user: userInfo };
+    return { data:{accessToken: token, user: userInfo}, message: 'Login successful'};
   }
 
-  async changePassword(changePasswordDto: ChangePasswordDto): Promise<string> {
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<ResponseType> {
     const user = await this.userService.getUserWithPassword(
       changePasswordDto.email,
     );
@@ -194,10 +195,10 @@ export class AuthService {
     }
     user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
     await this.userService.updateUser(+user.id, user);
-    return 'Password changed successfully';
+    return {message:'Password changed successfully', data:null};
   }
 
-  async forgotPassword(emailOnlyDto: EmailOnlyDto): Promise<string> {
+  async forgotPassword(emailOnlyDto: EmailOnlyDto): Promise<ResponseType> {
     const user = await this.userService.findOneByEmail(emailOnlyDto.email);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -221,10 +222,10 @@ export class AuthService {
       user: user,
     });
 
-    return 'Reset password instructions sent to your email';
+    return {message:'Reset password instructions sent to your email', data:null};
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<string> {
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<ResponseType> {
     const user = await this.userService.findOneByResetToken(
       resetPasswordDto.token,
     );
@@ -244,7 +245,7 @@ export class AuthService {
     user.resetPasswordToken = null;
     user.tokenExpiry = null;
     await this.userService.updateUser(+user.id, user);
-    return 'Password reset successfully';
+    return {message:'Password reset successfully',data:null};
   }
 
   private generateToken(user: UserEntity): Promise<string> {
