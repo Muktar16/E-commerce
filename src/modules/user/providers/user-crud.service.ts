@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindManyOptions, ILike } from 'typeorm';
-import { UserEntity } from '../entities/user.entity';
-import { PaginationDto } from '../dto/pagination.dto';
-import { FilterUserDto } from '../dto/filter-user.dto';
 import { ResponseType } from 'src/utility/interfaces/response.interface';
+import { ILike, Repository } from 'typeorm';
+import { FilterUserDto } from '../dto/filter-user.dto';
+import { PaginationDto } from '../dto/pagination.dto';
+import { UserEntity } from '../entities/user.entity';
 
 @Injectable()
 export class UserCrudService {
@@ -39,6 +39,15 @@ export class UserCrudService {
       data: {users,total},
       message: 'Users fetched successfully',
     };
+  }
+
+  async deleteAccount(id: number): Promise<ResponseType>{
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    await this.userRepository.softDelete(id);
+    return { message: 'Account deleted successfully', data: user};
   }
 
   async findOneById(id: number): Promise<UserEntity> {

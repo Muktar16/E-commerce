@@ -84,7 +84,7 @@ export class CartService {
     });
     cart.cartProducts.forEach(async(cp) => {
       cp.isDeleted = true;
-      await this.cartProductRepository.save(cp);
+      await this.cartProductRepository.softDelete(cp.id);
     });
     await this.cartProductRepository.softRemove(cart.cartProducts);
     return cart;

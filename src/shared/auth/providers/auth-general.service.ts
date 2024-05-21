@@ -10,23 +10,23 @@ import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
 import { generate } from 'otp-generator';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { MailSenderService } from '../mailsender/mailsender.service';
-import { AdminSignUpDto } from './dto/auth.admin-signup.dto';
-import { EmailOnlyDto } from './dto/auth.email-only.dto';
-import { SignUpDto } from './dto/auth.signup.dto';
-import { VerifyEmailDto } from './dto/auth.verify-email.dto';
-import { ChangePasswordDto } from './dto/auth.change-password.dto';
+import { MailSenderService } from '../../mailsender/mailsender.service';
+import { EmailOnlyDto } from '../dto/auth.email-only.dto';
+import { SignUpDto } from '../dto/auth.signup.dto';
+import { VerifyEmailDto } from '../dto/auth.verify-email.dto';
+import { ChangePasswordDto } from '../dto/auth.change-password.dto';
 import { randomBytes } from 'crypto';
-import { ResetPasswordDto } from './dto/auth.reset-password.dto';
+import { ResetPasswordDto } from '../dto/auth.reset-password.dto';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import { CartService } from 'src/modules/cart/cart.service';
 import { ResponseType } from 'src/utility/interfaces/response.interface';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
+import { SpecialSignUpDto } from '../dto/auth.admin-signup.dto';
 
 @Injectable()
-export class AuthService {
+export class AuthGeneralService {
   constructor(
-    private userService: UserCrudService,
+    private userCrudService: UserCrudService,
     private jwtService: JwtService,
     private configService: ConfigService,
     private mailSenderService: MailSenderService,
@@ -36,21 +36,21 @@ export class AuthService {
   async signUp(
     signupUserDto: SignUpDto,
   ): Promise<ResponseType> {
-    const userExist = await this.userService.findOneByEmail(
+    const userExist = await this.userCrudService.findOneByEmail(
       signupUserDto.email,
     );
     if (userExist) {
       throw new BadRequestException('User already exists');
     }
     signupUserDto.password = await bcrypt.hash(signupUserDto.password, 10);
-    let user = await this.userService.createUser(signupUserDto);
+    let user = await this.userCrudService.createUser(signupUserDto);
     user.otp = generate(6, {
       digits: true,
       lowerCaseAlphabets: false,
       upperCaseAlphabets: false,
       specialChars: false,
     });
-    user = await this.userService.updateUser(+user.id, user);
+    user = await this.userCrudService.updateUser(+user.id, user);
     // Send OTP via email
     this.mailSenderService.sendWelcomeEmailWithOTP({
       to: user.email,
@@ -64,7 +64,7 @@ export class AuthService {
   async verifyEmail(
     verifyEmailDto: VerifyEmailDto,
   ): Promise<{ user: UserEntity; message: string }> {
-    const user = await this.userService.findOneByEmail(verifyEmailDto.email);
+    const user = await this.userCrudService.findOneByEmail(verifyEmailDto.email);
     if (!user) {
       throw new HttpException('Email Not found', HttpStatus.NOT_FOUND);
     }
@@ -90,12 +90,12 @@ export class AuthService {
     if(user.role === Roles.USER){
       this.cartService.createCart({userId:user.id});
     }
-    let updatedUser = await this.userService.updateUser(+user.id, user);
+    let updatedUser = await this.userCrudService.updateUser(+user.id, user);
     return { user: updatedUser, message: 'User verified successfully' };
   }
 
   async resendOTP(emailOnlyDto: EmailOnlyDto): Promise<string> {
-    const user = await this.userService.findOneByEmail(emailOnlyDto.email);
+    const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);
     if (!user) {
       throw new HttpException('Email Not found', HttpStatus.NOT_FOUND);
     }
@@ -114,7 +114,7 @@ export class AuthService {
       upperCaseAlphabets: false,
       specialChars: false,
     });
-    await this.userService.updateUser(+user.id, user);
+    await this.userCrudService.updateUser(+user.id, user);
     this.mailSenderService.sendWelcomeEmailWithOTP({
       to: user.email,
       subject: 'Resend OTP',
@@ -124,22 +124,22 @@ export class AuthService {
     return 'OTP sent to your email';
   }
 
-  async adminSignUp(
-    adminSignupDto: AdminSignUpDto,
+  async specialSignUp(
+    specialSignUpDto: SpecialSignUpDto,
   ): Promise<{ user: any; message: string }> {
-    const userExist = await this.userService.findOneByEmail(
-      adminSignupDto.email,
+    const userExist = await this.userCrudService.findOneByEmail(
+      specialSignUpDto.email,
     );
     if (userExist) {
       throw new BadRequestException('User already exists');
     }
-    adminSignupDto.password = await bcrypt.hash(adminSignupDto.password, 10);
-    const user = await this.userService.createUser(adminSignupDto);
+    specialSignUpDto.password = await bcrypt.hash(specialSignUpDto.password, 10);
+    const user = await this.userCrudService.createUser(specialSignUpDto);
     this.mailSenderService.sendSuperAdminWillApproveEmail({
-      to: adminSignupDto.email,
+      to: specialSignUpDto.email,
       subject: 'Waiting for approval at EasyMart Admin Panel',
       text: `Your account will be approved by the super admin`,
-      user: adminSignupDto,
+      user: specialSignUpDto,
     });
     return {
       user,
@@ -150,7 +150,7 @@ export class AuthService {
   async approveAdmin(
     emailOnlyDto: EmailOnlyDto,
   ): Promise<ResponseType> {
-    const user = await this.userService.findOneByEmail(emailOnlyDto.email);
+    const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -160,16 +160,42 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (user.role !== 'admin') {
+    if (user.role !== Roles.ADMIN) {
       throw new HttpException(
-        'Only admin account can be approved by super admin',
+        'This is not an admin account',
         HttpStatus.BAD_REQUEST,
       );
     }
     user.isVerified = true;
-    const updatedUser = await this.userService.updateUser(+user.id, user);
+    const updatedUser = await this.userCrudService.updateUser(+user.id, user);
     return { data: {user: updatedUser}, message: 'Admin approved successfully' };
   }
+
+  async approveDeliveryAgent(
+    emailOnlyDto: EmailOnlyDto,
+  ): Promise<ResponseType> {
+    const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (user.isVerified) {
+      throw new HttpException(
+        'This delivery-agent already approved or this email already have a user account.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (user.role !== Roles.DELIVERYPERSON) {
+      throw new HttpException(
+        'This is not a delivery-person account',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    user.isVerified = true;
+    const updatedUser = await this.userCrudService.updateUser(+user.id, user);
+    return { data: {user: updatedUser}, message: 'Delivery agent approved successfully' };
+  }
+
+
 
   async signIn(userInfo: UserEntity): Promise<ResponseType> {
     const token = await this.generateToken(userInfo);
@@ -177,7 +203,7 @@ export class AuthService {
   }
 
   async changePassword(changePasswordDto: ChangePasswordDto): Promise<ResponseType> {
-    const user = await this.userService.getUserWithPassword(
+    const user = await this.userCrudService.getUserWithPassword(
       changePasswordDto.email,
     );
     if (!user) {
@@ -194,12 +220,12 @@ export class AuthService {
       throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
     }
     user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
-    await this.userService.updateUser(+user.id, user);
+    await this.userCrudService.updateUser(+user.id, user);
     return {message:'Password changed successfully', data:null};
   }
 
   async forgotPassword(emailOnlyDto: EmailOnlyDto): Promise<ResponseType> {
-    const user = await this.userService.findOneByEmail(emailOnlyDto.email);
+    const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -209,7 +235,7 @@ export class AuthService {
     const resetToken = randomBytes(32).toString('hex');
     user.resetPasswordToken = resetToken;
     user.tokenExpiry = new Date(Date.now() + 3600000);
-    await this.userService.updateUser(+user.id, user);
+    await this.userCrudService.updateUser(+user.id, user);
 
     // Construct the reset password URL
     const resetPasswordUrl = `${this.configService.get('ORIGIN')}/reset-password?token=${resetToken}`;
@@ -226,7 +252,7 @@ export class AuthService {
   }
 
   async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<ResponseType> {
-    const user = await this.userService.findOneByResetToken(
+    const user = await this.userCrudService.findOneByResetToken(
       resetPasswordDto.token,
     );
     if (!user) {
@@ -244,7 +270,7 @@ export class AuthService {
     user.password = await bcrypt.hash(resetPasswordDto.newPassword, 10);
     user.resetPasswordToken = null;
     user.tokenExpiry = null;
-    await this.userService.updateUser(+user.id, user);
+    await this.userCrudService.updateUser(+user.id, user);
     return {message:'Password reset successfully',data:null};
   }
 

@@ -1,13 +1,13 @@
-import { Controller, Get, Param, ParseBoolPipe, Query, Req, UseGuards, UsePipes } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { RoleGuard } from 'src/shared/guards/role.guard';
+import { Roles } from 'src/utility/common/user-roles.enum';
+import { ResponseType } from 'src/utility/interfaces/response.interface';
+import { FilterUserDto } from '../dto/filter-user.dto';
+import { PaginationDto } from '../dto/pagination.dto';
 import { UserEntity } from '../entities/user.entity';
 import { UserCrudService } from '../providers/user-crud.service';
-import { AuthGuard } from '@nestjs/passport';
-import { Roles } from 'src/utility/common/user-roles.enum';
-import { RoleGuard } from 'src/shared/guards/role.guard';
-import { PaginationDto } from '../dto/pagination.dto';
-import { FilterUserDto } from '../dto/filter-user.dto';
-import { ResponseType } from 'src/utility/interfaces/response.interface';
 
 @ApiBearerAuth()
 @ApiTags('User')
@@ -19,6 +19,11 @@ export class UserCrudController {
   @Get('my-profile')
   async getMyProfile(@Req() req:any){
     return this.userCrudService.findOneById(+req.user.id);
+  }
+
+  @Delete('delete-account')
+  async deleteAccount(@Req() req:any){
+    return this.userCrudService.deleteAccount(+req.user.id);
   }
 
   @UseGuards(new RoleGuard([Roles.SUPERADMIN]))

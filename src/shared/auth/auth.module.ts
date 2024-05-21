@@ -3,12 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from 'src/modules/user/user.module';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { LocalStrategy } from './local.strategy';
-import { JwtStrategy } from './jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { MailSenderModule } from '../mailsender/mailsender.module';
 import { CartModule } from 'src/modules/cart/cart.module';
+import { AuthGeneralController } from './controllers/auth-general.controller';
+import { AuthGeneralService } from './providers/auth-general.service';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { CartModule } from 'src/modules/cart/cart.module';
       inject: [ConfigService],
     }),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  controllers: [AuthGeneralController],
+  providers: [AuthGeneralService, LocalStrategy, JwtStrategy],
 })
 export class AuthModule {}
