@@ -2,8 +2,8 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseType } from 'src/common/interfaces/response.interface';
 import { ILike, Repository } from 'typeorm';
-import { FilterUserDto } from '../dto/filter-user.dto';
-import { PaginationDto } from '../dto/pagination.dto';
+import { FilterUserDto } from '../dtos/filter-user.dto';
+import { PaginationDto } from '../dtos/pagination.dto';
 import { UserEntity } from '../entities/user.entity';
 
 @Injectable()

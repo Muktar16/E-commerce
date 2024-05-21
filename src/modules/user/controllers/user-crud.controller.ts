@@ -4,8 +4,8 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { ResponseType } from 'src/common/interfaces/response.interface';
-import { FilterUserDto } from '../dto/filter-user.dto';
-import { PaginationDto } from '../dto/pagination.dto';
+import { FilterUserDto } from '../dtos/filter-user.dto';
+import { PaginationDto } from '../dtos/pagination.dto';
 import { UserEntity } from '../entities/user.entity';
 import { UserCrudService } from '../providers/user-crud.service';
 

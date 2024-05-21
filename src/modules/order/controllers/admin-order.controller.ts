@@ -13,7 +13,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { AdminOrderService } from '../providers/admin-order.service';
-import { UpdateStatusDto } from '../dto/update-status.dto';
+import { UpdateStatusDto } from '../dtos/update-status.dto';
 import { ResponseType } from 'src/common/interfaces/response.interface';
 
 @ApiTags('Order/Admin')

@@ -2,7 +2,7 @@ import { AbstractEntity } from "src/common/entities/abstract.entity";
 import { Column, Entity, JoinColumn, ManyToOne, Table } from "typeorm";
 import { UserEntity } from "../../user/entities/user.entity";
 import { OrderedProduct } from "src/common/interfaces/ordered-product.interface";
-import { OrderStatus } from "src/common/enums/order-status.enum";
+import { OrderStatus } from "src/modules/order/enums/order-status.enum";
 import { TableNames } from "src/common/enums/table-names.enum";
 
 @Entity(TableNames.ORDERS)

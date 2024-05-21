@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CartService } from './cart.service';
-import { CartController } from './cart.controller';
+import { CartService } from './providers/cart.service';
+import { CartController } from './controllers/cart.controller';
 import { CartEntity } from './entities/cart.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductModule } from '../product/product.module';

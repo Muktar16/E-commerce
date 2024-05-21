@@ -18,7 +18,7 @@ import { ChangePasswordDto } from '../dto/auth.change-password.dto';
 import { randomBytes } from 'crypto';
 import { ResetPasswordDto } from '../dto/auth.reset-password.dto';
 import { Roles } from 'src/common/enums/user-roles.enum';
-import { CartService } from 'src/modules/cart/cart.service';
+import { CartService } from 'src/modules/cart/providers/cart.service';
 import { ResponseType } from 'src/common/interfaces/response.interface';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 import { SpecialSignUpDto } from '../dto/auth.admin-signup.dto';
