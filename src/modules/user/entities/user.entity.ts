@@ -1,12 +1,13 @@
 import { Exclude } from "class-transformer";
 import { IsOptional } from "class-validator";
 import { AbstractEntity } from "src/common/entities/abstract.entity";
-import { Roles } from "src/utility/common/user-roles.enum";
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from "typeorm";
+import { TableNames } from "src/common/enums/table-names.enum";
+import { Roles } from "src/common/enums/user-roles.enum";
+import { Column, Entity, OneToMany, OneToOne } from "typeorm";
 import { CartEntity } from "../../cart/entities/cart.entity";
 import { OrderEntity } from "../../order/entities/order.entity";
 
-@Entity({name: 'user', schema: 'ecommerce'})
+@Entity(TableNames.USERS)
 export class UserEntity extends AbstractEntity<UserEntity>{
     @Column({name: 'name', type: 'text'})
     name: string;
@@ -42,7 +43,7 @@ export class UserEntity extends AbstractEntity<UserEntity>{
     role: string;
 
     @OneToOne(() => CartEntity, cart => cart.user)
-    cart: CartEntity; // Define the one-to-one relation
+    cart: CartEntity;
 
     @OneToMany(() => OrderEntity, order => order.id)
     orders: OrderEntity[];

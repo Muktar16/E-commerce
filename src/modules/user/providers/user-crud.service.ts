@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ResponseType } from 'src/utility/interfaces/response.interface';
+import { ResponseType } from 'src/common/interfaces/response.interface';
 import { ILike, Repository } from 'typeorm';
 import { FilterUserDto } from '../dto/filter-user.dto';
 import { PaginationDto } from '../dto/pagination.dto';

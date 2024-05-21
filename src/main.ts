@@ -4,12 +4,11 @@ import { setupSwagger } from './common/swagger/swagger.config';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get<ConfigService>(ConfigService);
   setupSwagger(app);
-  // app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
   }));

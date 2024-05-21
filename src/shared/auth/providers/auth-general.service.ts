@@ -17,9 +17,9 @@ import { VerifyEmailDto } from '../dto/auth.verify-email.dto';
 import { ChangePasswordDto } from '../dto/auth.change-password.dto';
 import { randomBytes } from 'crypto';
 import { ResetPasswordDto } from '../dto/auth.reset-password.dto';
-import { Roles } from 'src/utility/common/user-roles.enum';
+import { Roles } from 'src/common/enums/user-roles.enum';
 import { CartService } from 'src/modules/cart/cart.service';
-import { ResponseType } from 'src/utility/interfaces/response.interface';
+import { ResponseType } from 'src/common/interfaces/response.interface';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 import { SpecialSignUpDto } from '../dto/auth.admin-signup.dto';
 

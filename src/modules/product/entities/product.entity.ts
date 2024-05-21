@@ -1,10 +1,9 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
+import { TableNames } from 'src/common/enums/table-names.enum';
 import { Category } from 'src/modules/category/entities/category.entity';
-import { Entity, Column, ManyToOne, JoinColumn, ManyToMany, OneToMany } from 'typeorm';
-import { CartEntity } from '../../cart/entities/cart.entity';
-import { CartProductEntity } from '../../cart/entities/cart-products.entity';
+import { Entity, Column, ManyToOne, JoinColumn, } from 'typeorm';
 
-@Entity({ name: 'product', schema: 'ecommerce' })
+@Entity(TableNames.PRODUCTS)
 export class ProductEntity extends AbstractEntity<ProductEntity> {
 
   @Column({ name: 'name', type: 'text' })
@@ -25,10 +24,8 @@ export class ProductEntity extends AbstractEntity<ProductEntity> {
   @Column({ name: 'images', type: 'jsonb' })
   images: string[];
 
-  @ManyToOne(() => Category, category => category.products) // Many-to-One relationship with Category
-  @JoinColumn({ name: 'category' }) // Define the join column
-  category: Category; // Define the property for the relationship
+  @ManyToOne(() => Category, category => category.products) 
+  @JoinColumn({ name: 'category' }) 
+  category: Category; 
 
-  // @OneToMany(() => CartProductEntity, cartProduct => cartProduct.cart)
-  // public cartProducts: CartProductEntity[];
 }

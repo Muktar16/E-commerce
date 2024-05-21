@@ -20,8 +20,8 @@ import { AuthGeneralService } from './providers/auth-general.service';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'), // Replace with your own secret key
-        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') }, // Adjust token expiration as needed
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES_IN') },
       }),
       inject: [ConfigService],
     }),

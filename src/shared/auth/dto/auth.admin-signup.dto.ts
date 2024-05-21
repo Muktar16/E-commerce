@@ -1,20 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty } from 'class-validator';
 import { SignUpDto } from './auth.signup.dto';
+import { SpecialUserRoles } from 'src/common/enums/user-roles.enum';
 
-enum SpecialRoles {
-  ADMIN = 'admin',
-  DELIVERYPERSON = 'deliveryperson',
-}
+
 
 export class SpecialSignUpDto extends SignUpDto {
-  @IsEnum(SpecialRoles)
+  @IsEnum(SpecialUserRoles)
   @IsNotEmpty()
   @ApiProperty({
     type: 'enum',
-    enum: SpecialRoles,
+    enum: SpecialUserRoles,
     description: 'The role of the user',
-    default: SpecialRoles.DELIVERYPERSON,
+    default: SpecialUserRoles.DELIVERYPERSONNEL,
   })
-  role: SpecialRoles;
+  role: SpecialUserRoles;
 }

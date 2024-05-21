@@ -11,10 +11,10 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { RoleGuard } from 'src/shared/guards/role.guard';
-import { Roles } from 'src/utility/common/user-roles.enum';
+import { Roles } from 'src/common/enums/user-roles.enum';
 import { AdminOrderService } from '../providers/admin-order.service';
 import { UpdateStatusDto } from '../dto/update-status.dto';
-import { ResponseType } from 'src/utility/interfaces/response.interface';
+import { ResponseType } from 'src/common/interfaces/response.interface';
 
 @ApiTags('Order/Admin')
 @ApiBearerAuth()

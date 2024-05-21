@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { AuthGuard } from '@nestjs/passport';
-import { Roles } from 'src/utility/common/user-roles.enum';
+import { Roles } from 'src/common/enums/user-roles.enum';
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { AddItemDto } from './dto/add-item.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';

@@ -1,10 +1,11 @@
 import { AbstractEntity } from "src/common/entities/abstract.entity";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, Table } from "typeorm";
 import { UserEntity } from "../../user/entities/user.entity";
-import { OrderedProduct } from "src/utility/interfaces/ordered-product.interface";
-import { OrderStatus } from "src/utility/common/order-status.enum";
+import { OrderedProduct } from "src/common/interfaces/ordered-product.interface";
+import { OrderStatus } from "src/common/enums/order-status.enum";
+import { TableNames } from "src/common/enums/table-names.enum";
 
-@Entity({ name: 'order', schema: 'ecommerce' })
+@Entity(TableNames.ORDERS)
 export class OrderEntity extends AbstractEntity<OrderEntity>{
     
     @Column({ name: 'total_amount', type: 'float', nullable: false })

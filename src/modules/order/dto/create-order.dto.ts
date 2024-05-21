@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { OrderedProduct } from 'src/utility/interfaces/ordered-product.interface';
+import { OrderedProduct } from 'src/common/interfaces/ordered-product.interface';
 
 export class CreateOrderDto {
   @IsString()

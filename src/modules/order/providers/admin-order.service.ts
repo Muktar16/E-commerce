@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ResponseType } from 'src/utility/interfaces/response.interface';
+import { ResponseType } from 'src/common/interfaces/response.interface';
 import { OrderEntity } from '../entities/order.entity';
 import { Repository } from 'typeorm';
 import { UpdateStatusDto } from '../dto/update-status.dto';

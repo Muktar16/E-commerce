@@ -2,8 +2,8 @@ import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/comm
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { RoleGuard } from 'src/shared/guards/role.guard';
-import { Roles } from 'src/utility/common/user-roles.enum';
-import { ResponseType } from 'src/utility/interfaces/response.interface';
+import { Roles } from 'src/common/enums/user-roles.enum';
+import { ResponseType } from 'src/common/interfaces/response.interface';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { UserOrderService } from '../providers/user-order.service';
 

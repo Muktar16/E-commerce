@@ -2,13 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateOrderDto } from '../dto/create-order.dto';
 import { UpdateOrderDto } from '../dto/update-order.dto';
 import { CartService } from '../../cart/cart.service';
-import { OrderedProduct } from 'src/utility/interfaces/ordered-product.interface';
+import { OrderedProduct } from 'src/common/interfaces/ordered-product.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderEntity } from '../entities/order.entity';
 import { Repository } from 'typeorm';
 import { ProductService } from '../../product/product.service';
-import { ResponseType } from 'src/utility/interfaces/response.interface';
-import { OrderStatus } from 'src/utility/common/order-status.enum';
+import { ResponseType } from 'src/common/interfaces/response.interface';
+import { OrderStatus } from 'src/common/enums/order-status.enum';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 
 @Injectable()
