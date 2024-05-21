@@ -5,16 +5,16 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title></title>
+  <title>Email Verification</title>
 
   <style>
     .body {
-      font-family: "Segoe UI";
+      font-family: "Segoe UI", sans-serif;
       padding: 50px;
     }
 
     .card {
-      border: 1px solid rgb(210, 211, 224);
+      border: 1px solid #d2d3e0;
       border-radius: 5px;
       padding: 35px;
       width: 500px;
@@ -27,8 +27,8 @@
     }
 
     button {
-      background-color: rgb(87, 91, 199);
-      border: 1px solid rgb(87, 91, 199);
+      background-color: #575bc7;
+      border: 1px solid #575bc7;
       color: white;
       padding: 10px;
       border-radius: 5px;
@@ -58,23 +58,13 @@
 
 <body class="body">
   <div class="card">
-
-    <h2>Welcome to our app !</h2>
-
+    <h2>OTP Verification</h2>
     <p>
-      Thank you for joining us !
-      We are grateful to have you on board.
+      Your One-Time Password (OTP) for verification is: <strong>{{text}}</strong>
     </p>
-
-    <p>{{text}}</p>
-
-    <a>
-      <button style="cursor: pointer;">Open Seiri</button>
-    </a>
-
+    <p>Enter this OTP in the provided field to complete the verification process.</p>
     <hr>
-
-    <span>Seiri</span>
+    <span>NoboShop</span>
   </div>
 </body>
 

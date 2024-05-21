@@ -17,16 +17,12 @@ export class UserCrudService {
     paginationDto: PaginationDto,
     filterUserDto: FilterUserDto,
   ): Promise<ResponseType> {
-    console.log('paginationDto', paginationDto);
-    console.log('filterUserDto', filterUserDto);
     const { page = 1, limit = 10 } = paginationDto;
     // Constructing the where condition dynamically
     let where: any = { isDeleted: false };
     where = { ...where, ...filterUserDto };
     if (where.name) where.name = ILike(`%${where.name}%`);
     if (where.email) where.email = ILike(`%${where.email}%`);
-
-    console.log('where', where);
 
     const options: any = {
       where,
@@ -88,7 +84,7 @@ export class UserCrudService {
   async getUserWithCart(userId: number) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: { cart: { cartProducts: { product: true } } },
+      relations: { cart: { cartItems: { product: true } } },
     });
     if (!user || !user.cart) {
       throw new HttpException(

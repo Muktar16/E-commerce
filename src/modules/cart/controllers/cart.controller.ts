@@ -26,7 +26,6 @@ export class CartController {
   @ApiBearerAuth()
   @Get('get')
   getCart(@Req() req: any){
-    console.log(req.user);
     return this.cartService.getCart(+req.user.id);
   }
 

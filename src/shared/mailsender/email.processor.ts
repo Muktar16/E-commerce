@@ -47,7 +47,6 @@ export class EmailProcessor {
   @Process('otp')
   async sendWelcomeEmail(job: Job<Mail>) {
     const { data } = job.data;
-    console.log({data});
     await this.mailService.sendMail({
       ...data,
       template: 'otp',

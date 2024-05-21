@@ -24,7 +24,7 @@ export class CartService {
   async getCart(userId: number) {
     return await this.cartRepository.findOne({
       where: { userId, isDeleted: false },
-      relations: ['cartProducts', 'cartProducts.product'],
+      relations: { cartItems: { product: true } },
     });
   }
 
@@ -42,17 +42,17 @@ export class CartService {
 
     let cart = await this.cartRepository.findOne({
       where: { userId, isDeleted: false },
-      relations: ['cartProducts', 'cartProducts.product'],
+      relations: { cartItems: { product: true } },
     });
 
-    const existingProduct = cart.cartProducts.find((cp) => cp.product.id === itemInfo.productId);
+    const existingProduct = cart.cartItems.find((cartItem) => cartItem.product.id === itemInfo.productId);
     if (existingProduct) {
       existingProduct.quantity = itemInfo.quantity;
       await this.cartProductRepository.save(existingProduct);
       return existingProduct;
     }
 
-    const cartProduct = await this.cartProductRepository.create({
+    const cartProduct = this.cartProductRepository.create({
       quantity: itemInfo.quantity,
     });
 
@@ -63,12 +63,11 @@ export class CartService {
   }
 
   async removeItemFromCart(productId: number, userId: number) {
-    console.log(productId, userId);
     const cart = await this.cartRepository.findOne({
       where: { userId, isDeleted: false },
       relations: ['cartProducts', 'cartProducts.product'],
     });
-    const cartProduct = cart.cartProducts.find((cp) => cp.product.id === +productId);
+    const cartProduct = cart.cartItems.find((cartItem) => cartItem.product.id === +productId);
     if (!cartProduct) {
       throw new HttpException('Product not found in cart', HttpStatus.NOT_FOUND);
     }
@@ -82,11 +81,11 @@ export class CartService {
       where: { userId, isDeleted: false },
       relations: ['cartProducts'],
     });
-    cart.cartProducts.forEach(async(cp) => {
-      cp.isDeleted = true;
-      await this.cartProductRepository.softDelete(cp.id);
+    cart.cartItems.forEach(async(cartItem) => {
+      cartItem.isDeleted = true;
+      await this.cartProductRepository.softDelete(cartItem.id);
     });
-    await this.cartProductRepository.softRemove(cart.cartProducts);
+    await this.cartProductRepository.softRemove(cart.cartItems);
     return cart;
   }
 }

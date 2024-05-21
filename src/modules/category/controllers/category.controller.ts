@@ -31,7 +31,6 @@ export class CategoryController {
   @Put(':id')
   @UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    console.log('updateCategoryDto', updateCategoryDto, id);
     return this.categoryService.update(+id, updateCategoryDto);
   }
 

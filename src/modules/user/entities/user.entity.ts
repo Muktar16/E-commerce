@@ -30,6 +30,11 @@ export class UserEntity extends AbstractEntity<UserEntity>{
     otp: number;
 
     @Exclude()
+    @Column({ name: 'otp_created_at', nullable: true })
+    @IsOptional()
+    otpCreatedAt: Date;
+
+    @Exclude()
     @Column({ name: 'reset_password_token',type:'text', nullable: true})
     @IsOptional()
     resetPasswordToken: string;

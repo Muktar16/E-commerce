@@ -25,13 +25,13 @@ export class UserOrderService {
     userId: number,
   ): Promise<ResponseType> {
     const user = await this.userService.getUserWithCart(userId);
-    if (user.cart.cartProducts.length < 1) {
+    if (user.cart.cartItems.length < 1) {
       throw new HttpException('Cart is empty', HttpStatus.BAD_REQUEST);
     }
     let totalAmount = 0;
     let orderedProducts: OrderedProduct[] = [];
     // check stock quantity
-    for (const cp of user.cart.cartProducts) {
+    for (const cp of user.cart.cartItems) {
       if (cp.product.stockQuantity < cp.quantity) {
         throw new HttpException(
           "Stock quantity is not available for the product '" +
@@ -49,7 +49,7 @@ export class UserOrderService {
       });
     }
     // update stock quantity
-    for (const cp of user.cart.cartProducts) {
+    for (const cp of user.cart.cartItems) {
       const product = await this.productService.findOne(cp.product.id);
       product.stockQuantity -= cp.quantity;
       await this.productService.update(cp.product.id, product);

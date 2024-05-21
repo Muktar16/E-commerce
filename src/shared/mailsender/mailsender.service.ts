@@ -35,7 +35,7 @@ export class MailSenderService {
     });
   }
 
-  async sendWelcomeEmailWithOTP(data: Mail) {
+  async sendOTP(data: Mail) {
     const job = await this.emailQueue.add('otp', { data });
     return { jobId: job.id };
   }

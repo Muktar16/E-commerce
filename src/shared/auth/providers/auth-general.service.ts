@@ -33,9 +33,7 @@ export class AuthGeneralService {
     private cartService: CartService,
   ) {}
 
-  async signUp(
-    signupUserDto: SignUpDto,
-  ): Promise<ResponseType> {
+  async signUp(signupUserDto: SignUpDto): Promise<ResponseType> {
     const userExist = await this.userCrudService.findOneByEmail(
       signupUserDto.email,
     );
@@ -52,43 +50,49 @@ export class AuthGeneralService {
     });
     user = await this.userCrudService.updateUser(+user.id, user);
     // Send OTP via email
-    this.mailSenderService.sendWelcomeEmailWithOTP({
+    this.mailSenderService.sendOTP({
       to: user.email,
-      subject: 'Welcome to EasyMart',
-      text: `OTP is ${user.otp}`,
+      subject: `Welcome to NoboShop, ${user.name}!`,
+      text: `${user.otp}`,
       user: user,
     });
-    return { data:user, message: 'OTP sent to your email' };
+    user.otpCreatedAt = new Date();
+    return {
+      data: user,
+      message: `OTP sent to your email valid for ${this.configService.get('OTP_EXPIRES_IN')} minutes`,
+    };
   }
 
   async verifyEmail(
     verifyEmailDto: VerifyEmailDto,
   ): Promise<{ user: UserEntity; message: string }> {
-    const user = await this.userCrudService.findOneByEmail(verifyEmailDto.email);
+    const user = await this.userCrudService.findOneByEmail(
+      verifyEmailDto.email,
+    );
     if (!user) {
       throw new HttpException('Email Not found', HttpStatus.NOT_FOUND);
     }
-    console.log('user.otp', user.otp, verifyEmailDto.otp);
     if (user.otp !== verifyEmailDto.otp) {
       throw new HttpException('Invalid OTP', HttpStatus.BAD_REQUEST);
     }
 
-    const offsetInMilliseconds = new Date().getTimezoneOffset() * 60000;
+    // const offsetInMilliseconds = new Date().getTimezoneOffset() * 60000;
     const currentTime = moment();
-    const updatedAt = moment(user.updatedAt).subtract(
-      offsetInMilliseconds,
-      'milliseconds',
-    );
-    const minutesSinceUpdatedAt = currentTime.diff(updatedAt, 'minutes');
+    const otpCreatedAt = moment(user.otpCreatedAt);
+    const minutesSinceUpdatedAt = currentTime.diff(otpCreatedAt, 'minutes');
 
-    if (minutesSinceUpdatedAt > 5) {
-      throw new HttpException('OTP expired', HttpStatus.BAD_REQUEST);
+    if (minutesSinceUpdatedAt > this.configService.get('OTP_EXPIRES_IN')) {
+      throw new HttpException(
+        `OTP expired. Please enter the otp within ${this.configService.get('OTP_EXPIRES_IN')}`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
     user.isVerified = true;
     user.otp = null;
+    user.otpCreatedAt = null;
     // Create cart for user
-    if(user.role === Roles.USER){
-      this.cartService.createCart({userId:user.id});
+    if (user.role === Roles.USER) {
+      this.cartService.createCart({ userId: user.id });
     }
     let updatedUser = await this.userCrudService.updateUser(+user.id, user);
     return { user: updatedUser, message: 'User verified successfully' };
@@ -115,7 +119,7 @@ export class AuthGeneralService {
       specialChars: false,
     });
     await this.userCrudService.updateUser(+user.id, user);
-    this.mailSenderService.sendWelcomeEmailWithOTP({
+    this.mailSenderService.sendOTP({
       to: user.email,
       subject: 'Resend OTP',
       text: `OTP is ${user.otp}`,
@@ -133,7 +137,10 @@ export class AuthGeneralService {
     if (userExist) {
       throw new BadRequestException('User already exists');
     }
-    specialSignUpDto.password = await bcrypt.hash(specialSignUpDto.password, 10);
+    specialSignUpDto.password = await bcrypt.hash(
+      specialSignUpDto.password,
+      10,
+    );
     const user = await this.userCrudService.createUser(specialSignUpDto);
     this.mailSenderService.sendSuperAdminWillApproveEmail({
       to: specialSignUpDto.email,
@@ -147,9 +154,7 @@ export class AuthGeneralService {
     };
   }
 
-  async approveAdmin(
-    emailOnlyDto: EmailOnlyDto,
-  ): Promise<ResponseType> {
+  async approveAdmin(emailOnlyDto: EmailOnlyDto): Promise<ResponseType> {
     const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -168,7 +173,10 @@ export class AuthGeneralService {
     }
     user.isVerified = true;
     const updatedUser = await this.userCrudService.updateUser(+user.id, user);
-    return { data: {user: updatedUser}, message: 'Admin approved successfully' };
+    return {
+      data: { user: updatedUser },
+      message: 'Admin approved successfully',
+    };
   }
 
   async approveDeliveryAgent(
@@ -192,17 +200,23 @@ export class AuthGeneralService {
     }
     user.isVerified = true;
     const updatedUser = await this.userCrudService.updateUser(+user.id, user);
-    return { data: {user: updatedUser}, message: 'Delivery agent approved successfully' };
+    return {
+      data: { user: updatedUser },
+      message: 'Delivery agent approved successfully',
+    };
   }
-
-
 
   async signIn(userInfo: UserEntity): Promise<ResponseType> {
     const token = await this.generateToken(userInfo);
-    return { data:{accessToken: token, user: userInfo}, message: 'Login successful'};
+    return {
+      data: { accessToken: token, user: userInfo },
+      message: 'Login successful',
+    };
   }
 
-  async changePassword(changePasswordDto: ChangePasswordDto): Promise<ResponseType> {
+  async changePassword(
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<ResponseType> {
     const user = await this.userCrudService.getUserWithPassword(
       changePasswordDto.email,
     );
@@ -221,7 +235,7 @@ export class AuthGeneralService {
     }
     user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
     await this.userCrudService.updateUser(+user.id, user);
-    return {message:'Password changed successfully', data:null};
+    return { message: 'Password changed successfully', data: null };
   }
 
   async forgotPassword(emailOnlyDto: EmailOnlyDto): Promise<ResponseType> {
@@ -248,10 +262,15 @@ export class AuthGeneralService {
       user: user,
     });
 
-    return {message:'Reset password instructions sent to your email', data:null};
+    return {
+      message: 'Reset password instructions sent to your email',
+      data: null,
+    };
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<ResponseType> {
+  async resetPassword(
+    resetPasswordDto: ResetPasswordDto,
+  ): Promise<ResponseType> {
     const user = await this.userCrudService.findOneByResetToken(
       resetPasswordDto.token,
     );
@@ -271,7 +290,7 @@ export class AuthGeneralService {
     user.resetPasswordToken = null;
     user.tokenExpiry = null;
     await this.userCrudService.updateUser(+user.id, user);
-    return {message:'Password reset successfully',data:null};
+    return { message: 'Password reset successfully', data: null };
   }
 
   private generateToken(user: UserEntity): Promise<string> {
