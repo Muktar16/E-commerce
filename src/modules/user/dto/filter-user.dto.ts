@@ -1,8 +1,7 @@
-import { IsOptional, IsString, IsEnum, IsBoolean, IsEmail, IsBooleanString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Roles } from 'src/utility/common/user-roles.enum';
-import { Transform, Type } from 'class-transformer';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { BooleanEnum } from 'src/utility/common/boolean.enum';
+import { Roles } from 'src/utility/common/user-roles.enum';
 
 export class FilterUserDto {
   @IsOptional()
