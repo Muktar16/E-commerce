@@ -17,7 +17,7 @@ export class AdminOrderService {
     updateStatus: UpdateStatusDto,
   ): Promise<ResponseType> {
     const order = await this.orderRepository.findOne({
-      where: { id, isDeleted: false },
+      where: { id,  },
     });
     if (!order) {
       throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
@@ -32,12 +32,12 @@ export class AdminOrderService {
 
   async deleteOrder(id: number): Promise<ResponseType> {
     const order = await this.orderRepository.findOne({
-      where: { id, isDeleted: false },
+      // where: { id, isDeleted: false },
     });
     if (!order) {
       throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
     }
-    order.isDeleted = true;
+    // order.isDeleted = true;
     await this.orderRepository.softDelete(order.id);
     return {
       data: null,

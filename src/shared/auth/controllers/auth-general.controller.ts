@@ -1,18 +1,20 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOkResponse, ApiResponseProperty, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/enums/user-roles.enum';
-import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { ResponseType } from 'src/common/interfaces/response.interface';
 import { RoleGuard } from '../../guards/role.guard';
-import { SpecialSignUpDto } from '../dto/auth.admin-signup.dto';
-import { ChangePasswordDto } from '../dto/auth.change-password.dto';
-import { EmailOnlyDto } from '../dto/auth.email-only.dto';
-import { ResetPasswordDto } from '../dto/auth.reset-password.dto';
-import { SignInDto } from '../dto/auth.signin.dto';
-import { SignUpDto } from '../dto/auth.signup.dto';
-import { VerifyEmailDto } from '../dto/auth.verify-email.dto';
+import { SpecialSignUpDto } from '../dtos/auth.admin-signup.dto';
+import { ChangePasswordDto } from '../dtos/auth.change-password.dto';
+import { EmailOnlyDto } from '../dtos/auth.email-only.dto';
+import { ResetPasswordDto } from '../dtos/auth.reset-password.dto';
+import { SignInDto } from '../dtos/auth.signin.dto';
+import { SignUpDto } from '../dtos/auth.signup.dto';
+import { VerifyEmailDto } from '../dtos/auth.verify-email.dto';
 import { AuthGeneralService } from '../providers/auth-general.service';
+import { SignupResponseDto } from '../dtos/signup-response.dto';
+import { plainToInstance } from 'class-transformer';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -20,8 +22,10 @@ export class AuthGeneralController {
   constructor(private readonly authGeneralService: AuthGeneralService) {}
 
   @Post('signup/customer')
-  async customerSignup(@Body() signUpDto: SignUpDto) {
-    return this.authGeneralService.customerSignup(signUpDto);
+  @ApiOkResponse({ description: 'Customer signup Response' , type: SignupResponseDto})
+  async customerSignup(@Body() signUpDto: SignUpDto):Promise<SignupResponseDto> {
+    const createdUser = await this.authGeneralService.customerSignup(signUpDto);
+    return plainToInstance(UserEntity, createdUser);
   }
 
   @Post('signup/special')

@@ -1,8 +1,8 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { setupSwagger } from './common/swagger/swagger.config';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +12,12 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
   }));
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      strategy: 'excludeAll',
+      excludeExtraneousValues: true,
+    }),
+  );
   await app.listen(+configService.get('APP_PORT') || 9000);
 }
 

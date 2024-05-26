@@ -54,7 +54,7 @@ export class ProductService {
 
   async findOne(id: number) {
     const product = this.productRepository.findOne({
-      where: { id, isDeleted: false },
+      where: { id },
       relations: ['category'],
     });
     if (!product) {
@@ -101,7 +101,7 @@ export class ProductService {
         HttpStatus.NOT_FOUND,
       );
     }
-    product.isDeleted = true;
+    // product.isDeleted = true;
     product.deletedAt = new Date();
     return await this.productRepository.update(+product.id, product);
   }
@@ -114,14 +114,14 @@ export class ProductService {
         HttpStatus.NOT_FOUND,
       );
     }
-    product.isDeleted = false;
+    // product.isDeleted = false;
     product.deletedAt = null;
     return await this.productRepository.update(+product.id, product);
   }
 
   async getDeleted() {
     return await this.productRepository.find({
-      where: { isDeleted: true },
+      // where: { isDeleted: true },
       relations: ['category'],
     });
   }

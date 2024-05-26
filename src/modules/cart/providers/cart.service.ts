@@ -23,7 +23,7 @@ export class CartService {
 
   async getCart(userId: number) {
     return await this.cartRepository.findOne({
-      where: { userId, isDeleted: false },
+      where: { userId,  },
       relations: { cartItems: { product: true } },
     });
   }
@@ -41,7 +41,7 @@ export class CartService {
     }
 
     let cart = await this.cartRepository.findOne({
-      where: { userId, isDeleted: false },
+      where: { userId,  },
       relations: { cartItems: { product: true } },
     });
 
@@ -64,25 +64,25 @@ export class CartService {
 
   async removeItemFromCart(productId: number, userId: number) {
     const cart = await this.cartRepository.findOne({
-      where: { userId, isDeleted: false },
+      where: { userId,  },
       relations: ['cartProducts', 'cartProducts.product'],
     });
     const cartProduct = cart.cartItems.find((cartItem) => cartItem.product.id === +productId);
     if (!cartProduct) {
       throw new HttpException('Product not found in cart', HttpStatus.NOT_FOUND);
     }
-    cartProduct.isDeleted = true;
+    // cartProduct.isDeleted = true;
     await this.cartProductRepository.softDelete(cartProduct.id);
     return cartProduct;
   }
 
   async clearCart(userId: number) {
     const cart = await this.cartRepository.findOne({
-      where: { userId, isDeleted: false },
+      where: { userId, },
       relations: ['cartProducts'],
     });
     cart.cartItems.forEach(async(cartItem) => {
-      cartItem.isDeleted = true;
+      // cartItem.isDeleted = true;
       await this.cartProductRepository.softDelete(cartItem.id);
     });
     await this.cartProductRepository.softRemove(cart.cartItems);

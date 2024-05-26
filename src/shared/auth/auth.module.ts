@@ -9,6 +9,7 @@ import { MailSenderModule } from '../mailsender/mailsender.module';
 import { CartModule } from 'src/modules/cart/cart.module';
 import { AuthGeneralController } from './controllers/auth-general.controller';
 import { AuthGeneralService } from './providers/auth-general.service';
+import { SmsModule } from '../smssender/sms/sms.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthGeneralService } from './providers/auth-general.service';
     PassportModule,
     MailSenderModule,
     CartModule,
+    SmsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

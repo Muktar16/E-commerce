@@ -11,17 +11,19 @@ import * as moment from 'moment';
 import { generate } from 'otp-generator';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { MailSenderService } from '../../mailsender/mailsender.service';
-import { EmailOnlyDto } from '../dto/auth.email-only.dto';
-import { SignUpDto } from '../dto/auth.signup.dto';
-import { VerifyEmailDto } from '../dto/auth.verify-email.dto';
-import { ChangePasswordDto } from '../dto/auth.change-password.dto';
+import { EmailOnlyDto } from '../dtos/auth.email-only.dto';
+import { SignUpDto } from '../dtos/auth.signup.dto';
+import { VerifyEmailDto } from '../dtos/auth.verify-email.dto';
+import { ChangePasswordDto } from '../dtos/auth.change-password.dto';
 import { randomBytes } from 'crypto';
-import { ResetPasswordDto } from '../dto/auth.reset-password.dto';
+import { ResetPasswordDto } from '../dtos/auth.reset-password.dto';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { CartService } from 'src/modules/cart/providers/cart.service';
 import { ResponseType } from 'src/common/interfaces/response.interface';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
-import { SpecialSignUpDto } from '../dto/auth.admin-signup.dto';
+import { SpecialSignUpDto } from '../dtos/auth.admin-signup.dto';
+import { SmsService } from 'src/shared/smssender/sms/sms.service';
+import { SignupResponseDto } from '../dtos/signup-response.dto';
 
 @Injectable()
 export class AuthGeneralService {
@@ -31,9 +33,10 @@ export class AuthGeneralService {
     private configService: ConfigService,
     private mailSenderService: MailSenderService,
     private cartService: CartService,
+    private smsService: SmsService,
   ) {}
 
-  async customerSignup(signupUserDto: SignUpDto) {
+  async customerSignup(signupUserDto: SignUpDto):Promise<SignupResponseDto> {
     const userExist = await this.userCrudService.findOneByEmail(
       signupUserDto.email,
     );
@@ -48,7 +51,12 @@ export class AuthGeneralService {
       upperCaseAlphabets: false,
       specialChars: false,
     });
+    user.otpCreatedAt = new Date();
     user = await this.userCrudService.updateUser(+user.id, user);
+
+    // Send OTP via SMS
+    // const sms = this.smsService.sendSMS();
+    // console.log(sms);
     // Send OTP via email
     this.mailSenderService.sendOTP({
       to: user.email,
@@ -56,8 +64,28 @@ export class AuthGeneralService {
       text: `${user.otp}`,
       user: user,
     });
-    user.otpCreatedAt = new Date();
-    return `An OTP has been sent to ${user.email}`;
+    return user;
+  }
+
+  async specialSignUp(specialSignUpDto: SpecialSignUpDto) {
+    const userExist = await this.userCrudService.findOneByEmail(
+      specialSignUpDto.email,
+    );
+    if (userExist) {
+      throw new BadRequestException('User already exists');
+    }
+    specialSignUpDto.password = await bcrypt.hash(
+      specialSignUpDto.password,
+      10,
+    );
+    const user = await this.userCrudService.createUser(specialSignUpDto);
+    this.mailSenderService.sendSuperAdminWillApproveEmail({
+      to: specialSignUpDto.email,
+      subject: 'Waiting for approval at EasyMart Admin Panel',
+      text: `Your account will be approved by the super admin`,
+      user: specialSignUpDto,
+    });
+    return user;
   }
 
   async verifyEmail(
@@ -76,9 +104,9 @@ export class AuthGeneralService {
     // const offsetInMilliseconds = new Date().getTimezoneOffset() * 60000;
     const currentTime = moment();
     const otpCreatedAt = moment(user.otpCreatedAt);
-    const minutesSinceUpdatedAt = currentTime.diff(otpCreatedAt, 'minutes');
+    const minutesSinceCreatedAt = currentTime.diff(otpCreatedAt, 'minutes');
 
-    if (minutesSinceUpdatedAt > this.configService.get('OTP_EXPIRES_IN')) {
+    if (minutesSinceCreatedAt > this.configService.get<number>('OTP_EXPIRES_IN')) {
       throw new HttpException(
         `OTP expired. Please enter the otp within ${this.configService.get('OTP_EXPIRES_IN')}`,
         HttpStatus.BAD_REQUEST,
@@ -125,26 +153,7 @@ export class AuthGeneralService {
     return 'OTP sent to your email';
   }
 
-  async specialSignUp(specialSignUpDto: SpecialSignUpDto) {
-    const userExist = await this.userCrudService.findOneByEmail(
-      specialSignUpDto.email,
-    );
-    if (userExist) {
-      throw new BadRequestException('User already exists');
-    }
-    specialSignUpDto.password = await bcrypt.hash(
-      specialSignUpDto.password,
-      10,
-    );
-    const user = await this.userCrudService.createUser(specialSignUpDto);
-    this.mailSenderService.sendSuperAdminWillApproveEmail({
-      to: specialSignUpDto.email,
-      subject: 'Waiting for approval at EasyMart Admin Panel',
-      text: `Your account will be approved by the super admin`,
-      user: specialSignUpDto,
-    });
-    return user;
-  }
+  
 
   async approveAdmin(emailOnlyDto: EmailOnlyDto): Promise<ResponseType> {
     const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);

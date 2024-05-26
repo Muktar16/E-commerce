@@ -6,6 +6,7 @@ import { Roles } from "src/common/enums/user-roles.enum";
 import { Column, Entity, OneToMany, OneToOne } from "typeorm";
 import { CartEntity } from "../../cart/entities/cart.entity";
 import { OrderEntity } from "../../order/entities/order.entity";
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity(TableNames.USERS)
 export class UserEntity extends AbstractEntity<UserEntity>{
@@ -18,10 +19,11 @@ export class UserEntity extends AbstractEntity<UserEntity>{
     @Column({name: 'password', type: 'text', select: false})
     password: string;
 
+    @Exclude()
     @Column({ name: 'is_verified', default: false })
     isVerified: boolean;
 
-    @Column({ name: 'phone_number', nullable: true })
+    @Column({ name: 'phone_number', nullable: true, unique: true})
     phoneNumber: string;
 
     @Exclude()

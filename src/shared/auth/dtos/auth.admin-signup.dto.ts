@@ -4,7 +4,6 @@ import { SignUpDto } from './auth.signup.dto';
 import { SpecialUserRoles } from 'src/common/enums/user-roles.enum';
 
 
-
 export class SpecialSignUpDto extends SignUpDto {
   @IsEnum(SpecialUserRoles)
   @IsNotEmpty()

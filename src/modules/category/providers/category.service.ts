@@ -26,11 +26,11 @@ export class CategoryService {
   }
 
   async findAll(): Promise<Category[]> {
-    return this.categoryRepository.find({where: {isDeleted: false}});
+    return this.categoryRepository.find();
   }
 
   async findOne(id: number): Promise<Category> {
-    const category = await this.categoryRepository.findOne({ where: { id, isDeleted:false } });
+    const category = await this.categoryRepository.findOne({ where: { id, } });
     if (!category) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }else{
@@ -56,28 +56,28 @@ export class CategoryService {
     if (!category) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }
-    category.isDeleted = true;
-    category.deletedAt = new Date();
-    await this.categoryRepository.update(+category.id, category);
+    // category.isDeleted = true;
+    // category.deletedAt = new Date();
+    await this.categoryRepository.softDelete(+category.id);
   }
 
   async restore(id: number): Promise<string> {
-    const category = await this.categoryRepository.findOne({ where: { id, isDeleted:true } });
+    const category = await this.categoryRepository.findOne({ where: { id, } });
     if (!category) {
       throw new HttpException('Category not found in deleted category list', HttpStatus.NOT_FOUND);
     }
-    category.isDeleted = false;
+    // category.isDeleted = false;
     category.deletedAt = null;
     await this.categoryRepository.update(+category.id, category);
     return "Category restored successfully"
   }
 
   async getItems(id: number): Promise<Category> {
-    const category = await this.categoryRepository.findOne({ where: { id, isDeleted:false }, relations: ['products']});
+    const category = await this.categoryRepository.findOne({ where: { id }, relations: ['products']});
     if (!category) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }
-    category.products = category.products.filter(product => !product.isDeleted);
+    // category.products = category.products.filter(product => !product.isDeleted);
     return category;
   }
 }

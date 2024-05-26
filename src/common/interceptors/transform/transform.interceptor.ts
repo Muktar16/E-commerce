@@ -6,12 +6,8 @@ interface ResponseFormat<T> {
   status: string;
   statusCode: number;
   message: string;
-  timestamp: string;
   data: T;
-  error?: {
-    code?: string;
-    details?: string;
-  };
+  error?: any;
 }
 
 @Injectable()
@@ -21,8 +17,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, ResponseForma
       map(data => ({
         status: 'success',
         statusCode: context.switchToHttp().getResponse().statusCode,
-        message: 'Request successful',
-        timestamp: new Date().toISOString(),
+        message: context.switchToHttp().getResponse() || 'Request successful',
         data,
       })),
     );
