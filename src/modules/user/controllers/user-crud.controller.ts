@@ -12,7 +12,7 @@ import { UserCrudService } from '../providers/user-crud.service';
 @ApiBearerAuth()
 @ApiTags('User')
 @UseGuards(AuthGuard('jwt'))
-@Controller('user')
+@Controller('users')
 export class UserCrudController {
   constructor(private readonly userCrudService: UserCrudService) {}
 

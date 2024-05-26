@@ -19,7 +19,7 @@ export class UserCrudService {
   ): Promise<ResponseType> {
     const { page = 1, limit = 10 } = paginationDto;
     // Constructing the where condition dynamically
-    let where: any = { isDeleted: false };
+    let where: any = { };
     where = { ...where, ...filterUserDto };
     if (where.name) where.name = ILike(`%${where.name}%`);
     if (where.email) where.email = ILike(`%${where.email}%`);
@@ -48,7 +48,7 @@ export class UserCrudService {
 
   async findOneById(id: number): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
-      where: { id, isDeleted: false},
+      where: { id },
     });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);

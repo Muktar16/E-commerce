@@ -9,7 +9,7 @@ import { UserOrderService } from '../providers/user-order.service';
 
 @ApiTags('Order/User')
 @ApiBearerAuth()
-@Controller('order')
+@Controller('orders')
 @UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.USER]))
 export class UserOrderController {
   constructor(private readonly userOrderService: UserOrderService) {}

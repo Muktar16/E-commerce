@@ -7,7 +7,7 @@ import { CreateProductDto } from '../dtos/create-product.dto';
 import { UpdateProductDto } from '../dtos/update-product.dto';
 import { ProductService } from '../providers/product.service';
 @ApiTags('Product')
-@Controller('product')
+@Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
@@ -49,7 +49,5 @@ export class ProductController {
   @UseGuards(AuthGuard('jwt') ,new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   restore(@Param('id') id: string) {
     return this.productService.restore(+id);
-  }
-
-  
+  }  
 }

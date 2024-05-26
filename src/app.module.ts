@@ -6,6 +6,7 @@ import { ModulesModule } from './modules/modules.module';
 import { SharedModule } from './shared/shared.module';
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
 import { LoggingModule } from './shared/logging/logging.module';
+import { TransformInterceptor } from './common/interceptors/transform/transform.interceptor';
 
 @Module({
   imports: [
@@ -15,6 +16,10 @@ import { LoggingModule } from './shared/logging/logging.module';
     LoggingModule,
   ],
   controllers: [AppController],
-  providers: [AppService,{provide:  'APP_FILTER', useClass: AllExceptionsFilter}],
+  providers: [
+    AppService,
+    { provide: 'APP_FILTER', useClass: AllExceptionsFilter },
+    { provide: 'APP_INTERCEPTOR', useClass: TransformInterceptor },
+  ],
 })
 export class AppModule {}

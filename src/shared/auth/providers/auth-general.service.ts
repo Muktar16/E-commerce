@@ -33,7 +33,7 @@ export class AuthGeneralService {
     private cartService: CartService,
   ) {}
 
-  async signUp(signupUserDto: SignUpDto): Promise<ResponseType> {
+  async customerSignup(signupUserDto: SignUpDto) {
     const userExist = await this.userCrudService.findOneByEmail(
       signupUserDto.email,
     );
@@ -57,15 +57,12 @@ export class AuthGeneralService {
       user: user,
     });
     user.otpCreatedAt = new Date();
-    return {
-      data: user,
-      message: `OTP sent to your email valid for ${this.configService.get('OTP_EXPIRES_IN')} minutes`,
-    };
+    return `An OTP has been sent to ${user.email}`;
   }
 
   async verifyEmail(
     verifyEmailDto: VerifyEmailDto,
-  ): Promise<{ user: UserEntity; message: string }> {
+  ) {
     const user = await this.userCrudService.findOneByEmail(
       verifyEmailDto.email,
     );
@@ -95,7 +92,7 @@ export class AuthGeneralService {
       this.cartService.createCart({ userId: user.id });
     }
     let updatedUser = await this.userCrudService.updateUser(+user.id, user);
-    return { user: updatedUser, message: 'User verified successfully' };
+    return updatedUser;
   }
 
   async resendOTP(emailOnlyDto: EmailOnlyDto): Promise<string> {
@@ -128,9 +125,7 @@ export class AuthGeneralService {
     return 'OTP sent to your email';
   }
 
-  async specialSignUp(
-    specialSignUpDto: SpecialSignUpDto,
-  ): Promise<{ user: any; message: string }> {
+  async specialSignUp(specialSignUpDto: SpecialSignUpDto) {
     const userExist = await this.userCrudService.findOneByEmail(
       specialSignUpDto.email,
     );
@@ -148,10 +143,7 @@ export class AuthGeneralService {
       text: `Your account will be approved by the super admin`,
       user: specialSignUpDto,
     });
-    return {
-      user,
-      message: 'Your account will be approved by the super admin',
-    };
+    return user;
   }
 
   async approveAdmin(emailOnlyDto: EmailOnlyDto): Promise<ResponseType> {

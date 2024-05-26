@@ -1,15 +1,14 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateOrderDto } from '../dtos/create-order.dto';
-import { UpdateOrderDto } from '../dtos/update-order.dto';
-import { CartService } from '../../cart/providers/cart.service';
-import { OrderedProduct } from 'src/common/interfaces/ordered-product.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { OrderEntity } from '../entities/order.entity';
-import { Repository } from 'typeorm';
-import { ProductService } from '../../product/providers/product.service';
+import { OrderedProduct } from 'src/common/interfaces/ordered-product.interface';
 import { ResponseType } from 'src/common/interfaces/response.interface';
 import { OrderStatus } from 'src/modules/order/enums/order-status.enum';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
+import { Repository } from 'typeorm';
+import { CartService } from '../../cart/providers/cart.service';
+import { ProductService } from '../../product/providers/product.service';
+import { CreateOrderDto } from '../dtos/create-order.dto';
+import { OrderEntity } from '../entities/order.entity';
 
 @Injectable()
 export class UserOrderService {
@@ -71,7 +70,7 @@ export class UserOrderService {
   }
 
   async cancelOrder(id:number): Promise<ResponseType> {
-    const order = await this.orderRepository.findOne({ where: { id, isDeleted:false } });
+    const order = await this.orderRepository.findOne({ where: { id } });
     if (!order) {
       throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
     }
@@ -81,7 +80,6 @@ export class UserOrderService {
       product.stockQuantity += cp.quantity;
       await this.productService.update(cp.productId, product);
     }
-    order.isDeleted = true;
     order.orderStatus = OrderStatus.Cancelled;
     await this.orderRepository.save(order);
 
@@ -97,7 +95,6 @@ export class UserOrderService {
       data: await this.orderRepository.find({
         where: {
           user: { id: userId },
-          isDeleted: false,
         },
         // relations: ['user'],
       }),

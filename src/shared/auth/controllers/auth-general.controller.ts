@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiResponseProperty, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { ResponseType } from 'src/common/interfaces/response.interface';
@@ -20,14 +20,12 @@ export class AuthGeneralController {
   constructor(private readonly authGeneralService: AuthGeneralService) {}
 
   @Post('signup/customer')
-  async signup(@Body() signUpDto: SignUpDto): Promise<ResponseType> {
-    return this.authGeneralService.signUp(signUpDto);
+  async customerSignup(@Body() signUpDto: SignUpDto) {
+    return this.authGeneralService.customerSignup(signUpDto);
   }
 
   @Post('signup/special')
-  async specialSignUp(
-    @Body() specialSignUpDto: SpecialSignUpDto,
-  ): Promise<{ user: UserEntity; message: string }> {
+  async specialSignUp(@Body() specialSignUpDto: SpecialSignUpDto) {
     return this.authGeneralService.specialSignUp(specialSignUpDto);
   }
 
@@ -57,9 +55,7 @@ export class AuthGeneralController {
   }
 
   @Post('verify-email')
-  async verifyEmail(
-    @Body() verifyEmailDto: VerifyEmailDto,
-  ): Promise<{ user: UserEntity; message: string }> {
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
     return this.authGeneralService.verifyEmail(verifyEmailDto);
   }
 

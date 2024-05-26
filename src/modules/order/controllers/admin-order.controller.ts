@@ -19,7 +19,7 @@ import { ResponseType } from 'src/common/interfaces/response.interface';
 @ApiTags('Order/Admin')
 @ApiBearerAuth()
 @ApiBearerAuth()
-@Controller('order')
+@Controller('orders')
 export class AdminOrderController {
   constructor(private readonly adminOrderService: AdminOrderService) {}
 

@@ -10,6 +10,18 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { Response } from 'express';
 import { LoggingService } from 'src/shared/logging/logging.service';
 
+interface ErrorResponse {
+  status: string;
+  statusCode: number;
+  message: string;
+  timestamp: string;
+  error: {
+    code: string;
+    details: string;
+    trace?: string;
+  };
+}
+
 interface LogData {
   level: string;
   message: string;
@@ -32,7 +44,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
   ) {}
 
   async catch(exception: unknown, host: ArgumentsHost) {
-    console.log('Exception:', exception);
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -40,10 +51,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
+    let errorCode = 'INTERNAL_ERROR';
+
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       message = exception.message;
+      errorCode = (exception as any).code || errorCode;
     }
 
     const logData: LogData = {
@@ -65,10 +79,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     this.loggingService.log(logData); 
 
-    const responseBody = {
+    // const responseBody = {
+    //   statusCode: status,
+    //   message,
+    //   timestamp: new Date().toISOString(),
+    // };
+
+    const responseBody: ErrorResponse = {
+      status: 'error',
       statusCode: status,
       message,
       timestamp: new Date().toISOString(),
+      error: {
+        code: errorCode,
+        details: message,
+      },
     };
 
     httpAdapter.reply(response, responseBody, status);
