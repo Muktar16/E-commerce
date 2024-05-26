@@ -1,12 +1,11 @@
+import { instanceToPlain } from 'class-transformer';
 import {
-    CreateDateColumn,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
-    DeleteDateColumn,
-    Entity,
-    Column,
-  } from 'typeorm';
-  import { instanceToPlain } from 'class-transformer';
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm';
   @Entity()
   export abstract class AbstractEntity<T> {
     constructor(partial: Partial<T>) {
@@ -28,9 +27,6 @@ import {
       nullable: true,
     })
     public deletedAt: Date;
-
-    // @Column({ name: 'is_deleted', type: 'boolean', default: false })
-    // public isDeleted: boolean;
   
     toJSON() {
       return instanceToPlain(this);

@@ -23,7 +23,7 @@ import { ResponseType } from 'src/common/interfaces/response.interface';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 import { SpecialSignUpDto } from '../dtos/auth.admin-signup.dto';
 import { SmsService } from 'src/shared/smssender/sms/sms.service';
-import { SignupResponseDto } from '../dtos/signup-response.dto';
+import { UserResponseDto } from '../dtos/user-response.dto';
 
 @Injectable()
 export class AuthGeneralService {
@@ -36,7 +36,7 @@ export class AuthGeneralService {
     private smsService: SmsService,
   ) {}
 
-  async customerSignup(signupUserDto: SignUpDto):Promise<SignupResponseDto> {
+  async customerSignup(signupUserDto: SignUpDto):Promise<UserResponseDto> {
     const userExist = await this.userCrudService.findOneByEmail(
       signupUserDto.email,
     );
@@ -67,7 +67,9 @@ export class AuthGeneralService {
     return user;
   }
 
-  async specialSignUp(specialSignUpDto: SpecialSignUpDto) {
+  async specialSignUp(
+    specialSignUpDto: SpecialSignUpDto,
+  ): Promise<UserResponseDto> {
     const userExist = await this.userCrudService.findOneByEmail(
       specialSignUpDto.email,
     );
@@ -85,12 +87,11 @@ export class AuthGeneralService {
       text: `Your account will be approved by the super admin`,
       user: specialSignUpDto,
     });
+    
     return user;
   }
 
-  async verifyEmail(
-    verifyEmailDto: VerifyEmailDto,
-  ) {
+  async verifyEmail(verifyEmailDto: VerifyEmailDto) {
     const user = await this.userCrudService.findOneByEmail(
       verifyEmailDto.email,
     );
@@ -100,13 +101,14 @@ export class AuthGeneralService {
     if (user.otp !== verifyEmailDto.otp) {
       throw new HttpException('Invalid OTP', HttpStatus.BAD_REQUEST);
     }
-
     // const offsetInMilliseconds = new Date().getTimezoneOffset() * 60000;
     const currentTime = moment();
     const otpCreatedAt = moment(user.otpCreatedAt);
     const minutesSinceCreatedAt = currentTime.diff(otpCreatedAt, 'minutes');
 
-    if (minutesSinceCreatedAt > this.configService.get<number>('OTP_EXPIRES_IN')) {
+    if (
+      minutesSinceCreatedAt > this.configService.get<number>('OTP_EXPIRES_IN')
+    ) {
       throw new HttpException(
         `OTP expired. Please enter the otp within ${this.configService.get('OTP_EXPIRES_IN')}`,
         HttpStatus.BAD_REQUEST,
@@ -152,8 +154,6 @@ export class AuthGeneralService {
     });
     return 'OTP sent to your email';
   }
-
-  
 
   async approveAdmin(emailOnlyDto: EmailOnlyDto): Promise<ResponseType> {
     const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);

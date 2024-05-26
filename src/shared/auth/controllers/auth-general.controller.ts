@@ -12,9 +12,8 @@ import { SignInDto } from '../dtos/auth.signin.dto';
 import { SignUpDto } from '../dtos/auth.signup.dto';
 import { VerifyEmailDto } from '../dtos/auth.verify-email.dto';
 import { AuthGeneralService } from '../providers/auth-general.service';
-import { SignupResponseDto } from '../dtos/signup-response.dto';
+import { UserResponseDto } from '../dtos/user-response.dto';
 import { plainToInstance } from 'class-transformer';
-import { UserEntity } from 'src/modules/user/entities/user.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -22,15 +21,24 @@ export class AuthGeneralController {
   constructor(private readonly authGeneralService: AuthGeneralService) {}
 
   @Post('signup/customer')
-  @ApiOkResponse({ description: 'Customer signup Response' , type: SignupResponseDto})
-  async customerSignup(@Body() signUpDto: SignUpDto):Promise<SignupResponseDto> {
-    const createdUser = await this.authGeneralService.customerSignup(signUpDto);
-    return plainToInstance(UserEntity, createdUser);
+  @ApiOkResponse({ description: 'Customer signup Response' , type: UserResponseDto})
+  async customerSignup(@Body() signUpDto: SignUpDto): Promise<UserResponseDto>{
+    const createdUser = this.authGeneralService.customerSignup(signUpDto);
+    return plainToInstance(UserResponseDto, createdUser);
   }
 
   @Post('signup/special')
-  async specialSignUp(@Body() specialSignUpDto: SpecialSignUpDto) {
-    return this.authGeneralService.specialSignUp(specialSignUpDto);
+  @ApiOkResponse({ description: 'Admin/Delivery-personnel signup Response' , type: UserResponseDto})
+  async specialSignUp(@Body() specialSignUpDto: SpecialSignUpDto): Promise<UserResponseDto>{
+    const createdUser =  this.authGeneralService.specialSignUp(specialSignUpDto);
+    return plainToInstance(UserResponseDto, createdUser);
+  }
+
+  @Post('verify-email')
+  @ApiOkResponse({ description: 'Email verification Response', type: 'User verified successfully' })
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto): Promise<UserResponseDto>{
+    const verifiedUser = this.authGeneralService.verifyEmail(verifyEmailDto);
+    return plainToInstance(UserResponseDto, verifiedUser);
   }
 
   @Post('signin')
@@ -58,10 +66,7 @@ export class AuthGeneralController {
     return this.authGeneralService.approveDeliveryAgent(emailOnlyDto);
   }
 
-  @Post('verify-email')
-  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
-    return this.authGeneralService.verifyEmail(verifyEmailDto);
-  }
+ 
 
   @Post('resend-otp')
   async resendOTP(@Body() resendOTPDto: EmailOnlyDto): Promise<string> {

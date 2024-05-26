@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Expose } from "class-transformer";
+import { Expose, instanceToPlain } from "class-transformer";
 
-export class SignupResponseDto {
+export class UserResponseDto {
     @Expose()
     @ApiProperty({example: 1, type: 'number', description: 'The id of the user'})
     id: number;
@@ -15,12 +15,15 @@ export class SignupResponseDto {
     email: string;
 
     @Expose()
-    @ApiProperty({example: 'user', type: 'string', description: 'The role of the user'})
+    @ApiProperty({example: 'user/admin/delivery-personnel', type: 'string', description: 'The role of the user'})
     role: string;
 
     @Expose()
     @ApiProperty({example: '+8801712345678', type: 'string', description: 'The phone number of the user'})
     phoneNumber: string;
 
+    toJSON() {
+        return instanceToPlain(this);
+    }
 }
     

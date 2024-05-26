@@ -43,6 +43,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
   ) {}
 
   async catch(exception: unknown, host: ArgumentsHost) {
+    console.log('AllExceptionsFilter', exception);
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();

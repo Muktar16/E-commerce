@@ -1,4 +1,4 @@
-import { Exclude } from "class-transformer";
+import { Exclude, instanceToPlain } from "class-transformer";
 import { IsOptional } from "class-validator";
 import { AbstractEntity } from "src/common/entities/abstract.entity";
 import { TableNames } from "src/common/enums/table-names.enum";
@@ -54,4 +54,8 @@ export class UserEntity extends AbstractEntity<UserEntity>{
 
     @OneToMany(() => OrderEntity, order => order.id)
     orders: OrderEntity[];
+
+    toJSON() {
+        return instanceToPlain(this);
+    }
 }
