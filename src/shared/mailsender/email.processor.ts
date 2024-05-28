@@ -84,6 +84,19 @@ export class EmailProcessor {
     });
   }
 
+  @Process('admin-approved')
+  async sendAdminApprovedEmail(job:Job<Mail>){
+    const { data } = job.data;
+    await this.mailService.sendMail({
+      ...data,
+      template: 'admin-approved',
+      context: {
+        user: data.user,
+        text: data.text,
+      },
+    });
+  }
+
 //   @Process('verify-email')
 //   async sendVerifyEmail(job: Job<Mail>) {
 //     const { data } = job.data;

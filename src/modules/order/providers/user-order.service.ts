@@ -6,7 +6,7 @@ import { OrderStatus } from 'src/modules/order/enums/order-status.enum';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 import { Repository } from 'typeorm';
 import { CartService } from '../../cart/providers/cart.service';
-import { ProductService } from '../../product/providers/product.service';
+import { ProductGeneralService } from '../../product/providers/product-general.service';
 import { CreateOrderDto } from '../dtos/create-order.dto';
 import { OrderEntity } from '../entities/order.entity';
 
@@ -17,7 +17,7 @@ export class UserOrderService {
     private orderRepository: Repository<OrderEntity>,
     private cartService: CartService,
     private userService: UserCrudService,
-    private productService: ProductService,
+    private productService: ProductGeneralService,
   ) {}
   async create(
     createOrderDto: CreateOrderDto,
@@ -51,7 +51,7 @@ export class UserOrderService {
     for (const cp of user.cart.cartItems) {
       const product = await this.productService.findOne(cp.product.id);
       product.stockQuantity -= cp.quantity;
-      await this.productService.update(cp.product.id, product);
+      await this.productService.updateById(cp.product.id, product);
     }
 
     const order: Partial<OrderEntity> = {
@@ -78,7 +78,7 @@ export class UserOrderService {
     for (const cp of order.products) {
       const product = await this.productService.findOne(cp.productId);
       product.stockQuantity += cp.quantity;
-      await this.productService.update(cp.productId, product);
+      await this.productService.updateById(cp.productId, product);
     }
     order.orderStatus = OrderStatus.Cancelled;
     await this.orderRepository.save(order);

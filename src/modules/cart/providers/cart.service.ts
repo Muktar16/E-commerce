@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AddItemDto } from '../dtos/add-item.dto';
 import { CartEntity } from '../entities/cart.entity';
-import { ProductService } from '../../product/providers/product.service';
+import { ProductGeneralService } from '../../product/providers/product-general.service';
 import { CartItemEntity } from '../entities/cart-items.entity';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class CartService {
     private cartRepository: Repository<CartEntity>,
     @InjectRepository(CartItemEntity)
     private cartProductRepository: Repository<CartItemEntity>,
-    private productService: ProductService,
+    private productService: ProductGeneralService,
   ) {}
 
   async createCart(cartInfo: { userId: number }) {

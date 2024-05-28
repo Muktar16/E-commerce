@@ -1,4 +1,5 @@
-import { instanceToPlain } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { Expose, instanceToPlain } from 'class-transformer';
 import {
   CreateDateColumn,
   DeleteDateColumn,
@@ -13,6 +14,8 @@ import {
     }
   
     @PrimaryGeneratedColumn()
+    @ApiProperty({ example: 1, type: 'number', description: 'The id of the entity' })
+    @Expose()
     public id: number;
   
     @CreateDateColumn({ type: 'timestamp without time zone', name: 'created_at' })

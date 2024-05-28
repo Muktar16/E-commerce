@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost } from '@nestjs/core';
@@ -18,6 +19,7 @@ interface ErrorResponse {
   method?: string;
   timestamp?: string;
   path?: string;
+  error?: any;
 }
 
 interface LogData {
@@ -43,7 +45,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
   ) {}
 
   async catch(exception: unknown, host: ArgumentsHost) {
-    console.log('AllExceptionsFilter', exception);
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -58,6 +59,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       if(isProduction) message = exception.message;
       else message = (exception as any ).getResponse().message || exception.message;
     }
+
+    Logger.error(`${request.method} ${request.url}`, JSON.stringify(exception), 'ExceptionFilter');
 
     // Log the error in production mode
     if(isProduction) {
@@ -94,8 +97,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
         timestamp: new Date().toISOString(),
         path: request.url,
         method: request.method,
+        error: exception,
       };
     }
+    // Logger.error(`${request.method} ${request.url}`, JSON.stringify(responseBody), 'ExceptionFilter');
     httpAdapter.reply(response, responseBody, status);
   }
 }

@@ -23,7 +23,6 @@ export class TransformInterceptor<T>
     context: ExecutionContext,
     next: CallHandler<T>,
   ): Observable<ResponseFormat<T>> {
-    console.log('Before...');
     return next.handle().pipe(
       map((data) => ({
         status: 'success',

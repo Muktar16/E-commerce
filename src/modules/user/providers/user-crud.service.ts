@@ -1,9 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseType } from 'src/common/interfaces/response.interface';
-import { ILike, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
+import { AllUsersResponseDto } from '../dtos/all-users-response.dto';
 import { FilterUserDto } from '../dtos/filter-user.dto';
-import { PaginationDto } from '../dtos/pagination.dto';
+import { PaginationDto } from '../../../common/dtos/pagination.dto';
 import { UserEntity } from '../entities/user.entity';
 
 @Injectable()
@@ -13,13 +14,23 @@ export class UserCrudService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
+  async findOneById(id: number): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
+  }
+
   async findAll(
     paginationDto: PaginationDto,
     filterUserDto: FilterUserDto,
-  ): Promise<ResponseType> {
+  ): Promise<AllUsersResponseDto> {
     const { page = 1, limit = 10 } = paginationDto;
     // Constructing the where condition dynamically
-    let where: any = { };
+    let where: any = {};
     where = { ...where, ...filterUserDto };
     if (where.name) where.name = ILike(`%${where.name}%`);
     if (where.email) where.email = ILike(`%${where.email}%`);
@@ -31,29 +42,16 @@ export class UserCrudService {
     };
 
     const [users, total] = await this.userRepository.findAndCount(options);
-    return {
-      data: {users,total},
-      message: 'Users fetched successfully',
-    };
+    return { users, total };
   }
 
-  async deleteAccount(id: number): Promise<ResponseType>{
+  async deleteAccount(id: number): Promise<ResponseType> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     await this.userRepository.softDelete(id);
-    return { message: 'Account deleted successfully', data: user};
-  }
-
-  async findOneById(id: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({
-      where: { id },
-    });
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    return user;
+    return { message: 'Account deleted successfully', data: user };
   }
 
   async findOneByEmail(email: string) {
@@ -71,7 +69,6 @@ export class UserCrudService {
   async updateUser(id: number, user: any) {
     delete user.updatedAt;
     await this.userRepository.update(id, user);
-    // this.userRepository.save(user);
     return await this.userRepository.findOne({ where: { id } });
   }
 
@@ -96,7 +93,21 @@ export class UserCrudService {
   }
 
   async createUser(user: Partial<UserEntity>): Promise<UserEntity> {
-    user = this.userRepository.create(user);
-    return await this.userRepository.save(user);
+    const ifExist = await this.userRepository.findOne({
+      where: { email: user.email },
+      withDeleted: true,
+    });
+    if (ifExist) {
+      await this.userRepository.restore(+ifExist.id);
+      await this.userRepository.update(+ifExist.id, {...user, isVerified: false});
+      return await this.findOneById(+ifExist.id);
+    } else {
+      user = this.userRepository.create(user);
+      return await this.userRepository.save(user);
+    }
+  }
+
+  async findUserByConditions(where: FindOptionsWhere<UserEntity>) {
+    return this.userRepository.findOne({ where });
   }
 }

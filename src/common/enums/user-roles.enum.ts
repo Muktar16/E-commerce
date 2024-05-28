@@ -5,7 +5,7 @@ export enum SpecialUserRoles {
 
 export enum Roles {
   USER = 'user',
-  SUPERADMIN = 'superadmin',
+  SUPERADMIN = 'super-admin',
   ADMIN = SpecialUserRoles.ADMIN,
   DELIVERYPERSON = SpecialUserRoles.DELIVERYPERSONNEL,
 }

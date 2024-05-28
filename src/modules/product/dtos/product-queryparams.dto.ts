@@ -14,6 +14,4 @@ export class ProductFindAllQueryParamsDto {
     @ApiProperty({example: 'Search product name', type: 'string', description: 'Sort by field'})
     @IsOptional()
     name?: string;
-
-    
 }

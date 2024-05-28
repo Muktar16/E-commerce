@@ -51,25 +51,22 @@ export class CategoryService {
     return this.categoryRepository.save(updatedCategory);
   }
 
-  async remove(id: number): Promise<void> {
+  async delete(id: number) {
     const category = await this.categoryRepository.findOne({ where: { id } });
     if (!category) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }
-    // category.isDeleted = true;
-    // category.deletedAt = new Date();
     await this.categoryRepository.softDelete(+category.id);
+    return 'Category deleted successfully';
   }
 
-  async restore(id: number): Promise<string> {
-    const category = await this.categoryRepository.findOne({ where: { id, } });
-    if (!category) {
-      throw new HttpException('Category not found in deleted category list', HttpStatus.NOT_FOUND);
+  async restore(id: number):Promise<string> {
+    const isExist = await this.categoryRepository.findOne({ where: { id } });
+    if (isExist) {
+      throw new HttpException('Category is not deleted', HttpStatus.NOT_FOUND);
     }
-    // category.isDeleted = false;
-    category.deletedAt = null;
-    await this.categoryRepository.update(+category.id, category);
-    return "Category restored successfully"
+    await this.categoryRepository.restore({ id });
+    return 'Category restored successfully';
   }
 
   async getItems(id: number): Promise<Category> {
@@ -77,7 +74,6 @@ export class CategoryService {
     if (!category) {
       throw new HttpException('Category not found', HttpStatus.NOT_FOUND);
     }
-    // category.products = category.products.filter(product => !product.isDeleted);
     return category;
   }
 }

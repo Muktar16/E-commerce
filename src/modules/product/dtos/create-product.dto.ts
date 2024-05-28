@@ -1,7 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Expose } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreateProductDto {
+    @Expose()
     @ApiProperty({example: 'Trimmer', type: 'string', description: 'The name of the product'})
     @IsNotEmpty()
     @IsString()

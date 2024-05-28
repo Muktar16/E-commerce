@@ -3,30 +3,33 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { randomBytes } from 'crypto';
 import * as moment from 'moment';
 import { generate } from 'otp-generator';
-import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { MailSenderService } from '../../mailsender/mailsender.service';
-import { EmailOnlyDto } from '../dtos/auth.email-only.dto';
-import { SignUpDto } from '../dtos/auth.signup.dto';
-import { VerifyEmailDto } from '../dtos/auth.verify-email.dto';
-import { ChangePasswordDto } from '../dtos/auth.change-password.dto';
-import { randomBytes } from 'crypto';
-import { ResetPasswordDto } from '../dtos/auth.reset-password.dto';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { CartService } from 'src/modules/cart/providers/cart.service';
-import { ResponseType } from 'src/common/interfaces/response.interface';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
-import { SpecialSignUpDto } from '../dtos/auth.admin-signup.dto';
 import { SmsService } from 'src/shared/smssender/sms/sms.service';
+import { MailSenderService } from '../../mailsender/mailsender.service';
+import { SpecialSignUpDto } from '../dtos/auth.admin-signup.dto';
+import { ChangePasswordDto } from '../dtos/auth.change-password.dto';
+import { EmailOnlyDto } from '../dtos/auth.email-only.dto';
+import { ResetPasswordDto } from '../dtos/auth.reset-password.dto';
+import { SignUpDto } from '../dtos/auth.signup.dto';
+import { VerifyEmailDto } from '../dtos/auth.verify-email.dto';
 import { UserResponseDto } from '../dtos/user-response.dto';
 
 @Injectable()
 export class AuthGeneralService {
+  private readonly tokenBlacklist: Set<string>;
+  private readonly maxBlacklistSize: number;
+
   constructor(
     private userCrudService: UserCrudService,
     private jwtService: JwtService,
@@ -34,11 +37,14 @@ export class AuthGeneralService {
     private mailSenderService: MailSenderService,
     private cartService: CartService,
     private smsService: SmsService,
-  ) {}
+  ) {
+    this.tokenBlacklist = new Set();
+    this.maxBlacklistSize = 1000;
+  }
 
-  async customerSignup(signupUserDto: SignUpDto):Promise<UserResponseDto> {
-    const userExist = await this.userCrudService.findOneByEmail(
-      signupUserDto.email,
+  async customerSignup(signupUserDto: SignUpDto): Promise<UserResponseDto> {
+    const userExist = await this.userCrudService.findUserByConditions(
+      { email: signupUserDto.email }
     );
     if (userExist) {
       throw new BadRequestException('User already exists');
@@ -84,10 +90,10 @@ export class AuthGeneralService {
     this.mailSenderService.sendSuperAdminWillApproveEmail({
       to: specialSignUpDto.email,
       subject: 'Waiting for approval at EasyMart Admin Panel',
-      text: `Your account will be approved by the super admin`,
+      text: `Your account will be approved by the Admin or super amdin`,
       user: specialSignUpDto,
     });
-    
+
     return user;
   }
 
@@ -155,7 +161,56 @@ export class AuthGeneralService {
     return 'OTP sent to your email';
   }
 
-  async approveAdmin(emailOnlyDto: EmailOnlyDto): Promise<ResponseType> {
+  // async signIn(userInfo: UserEntity): Promise<string> {
+  //   return await this.generateToken(userInfo);
+  // }
+
+  async signIn(
+    userInfo: UserEntity,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const accessToken = await this.generateToken(userInfo);
+    const refreshToken = await this.generateRefreshToken(userInfo);
+    // Store the refresh token in the user entity
+    userInfo.refreshToken = refreshToken.token;
+    userInfo.refreshTokenExpires = refreshToken.expires;
+    await this.userCrudService.updateUser(+userInfo.id, userInfo);
+
+    return { accessToken, refreshToken: refreshToken.token };
+  }
+
+  async refreshToken(
+    refreshToken: string,
+  ): Promise<{ accessToken: string; refreshToken: string; user: UserEntity }> {
+    console.log(refreshToken);
+    const payload = await this.jwtService.verifyAsync(refreshToken, {
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+    });
+
+    const user = await this.userCrudService.findUserByConditions({
+      id: payload.id,
+      refreshToken,
+    });
+
+    if (!user || user.refreshTokenExpires < new Date()) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const newAccessToken = await this.generateToken(user);
+    const newRefreshToken = await this.generateRefreshToken(user);
+
+    // Update the refresh token in the user entity
+    user.refreshToken = newRefreshToken.token;
+    user.refreshTokenExpires = newRefreshToken.expires;
+    await this.userCrudService.updateUser(+user.id, user);
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken.token,
+      user,
+    };
+  }
+
+  async approveAdmin(emailOnlyDto: EmailOnlyDto) {
     const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -173,16 +228,17 @@ export class AuthGeneralService {
       );
     }
     user.isVerified = true;
-    const updatedUser = await this.userCrudService.updateUser(+user.id, user);
-    return {
-      data: { user: updatedUser },
-      message: 'Admin approved successfully',
-    };
+    await this.userCrudService.updateUser(+user.id, user);
+    this.mailSenderService.sendAdminApprovedEmail({
+      to: user.email,
+      subject: 'Admin Approved',
+      text: 'You are now an admin',
+      user: user,
+    });
+    return;
   }
 
-  async approveDeliveryAgent(
-    emailOnlyDto: EmailOnlyDto,
-  ): Promise<ResponseType> {
+  async approveDeliveryAgent(emailOnlyDto: EmailOnlyDto) {
     const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -200,24 +256,67 @@ export class AuthGeneralService {
       );
     }
     user.isVerified = true;
-    const updatedUser = await this.userCrudService.updateUser(+user.id, user);
-    return {
-      data: { user: updatedUser },
-      message: 'Delivery agent approved successfully',
-    };
+    await this.userCrudService.updateUser(+user.id, user);
+    this.mailSenderService.sendAdminApprovedEmail({
+      to: user.email,
+      subject: 'Delivery-Person Approved',
+      text: 'You are now a Delivery person',
+      user: user,
+    });
+    return;
   }
 
-  async signIn(userInfo: UserEntity): Promise<ResponseType> {
-    const token = await this.generateToken(userInfo);
-    return {
-      data: { accessToken: token, user: userInfo },
-      message: 'Login successful',
-    };
+  async forgotPassword(emailOnlyDto: EmailOnlyDto): Promise<string> {
+    const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (!user.isVerified) {
+      throw new HttpException('User not verified', HttpStatus.BAD_REQUEST);
+    }
+    const resetToken = randomBytes(32).toString('hex');
+    user.resetPasswordToken = resetToken;
+    user.resetPassTokenExpires = new Date(Date.now() + 3600000);
+    await this.userCrudService.updateUser(+user.id, user);
+
+    // Construct the reset password URL
+    const resetPasswordUrl = `${this.configService.get('ORIGIN')}/reset-password?token=${resetToken}`;
+
+    // Send the reset password URL in the email
+    this.mailSenderService.sendResetPasswordEmail({
+      to: user.email,
+      subject: 'Forgot Password',
+      text: `${resetPasswordUrl}`,
+      user: user,
+    });
+
+    return 'Reset password instructions sent to your email';
   }
 
-  async changePassword(
-    changePasswordDto: ChangePasswordDto,
-  ): Promise<ResponseType> {
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<string> {
+    const user = await this.userCrudService.findUserByConditions({
+      resetPasswordToken: resetPasswordDto.token,
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    if (!user.isVerified) {
+      throw new HttpException('User not verified', HttpStatus.BAD_REQUEST);
+    }
+    if (user.resetPasswordToken !== resetPasswordDto.token) {
+      throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
+    }
+    if (new Date() > user.resetPassTokenExpires) {
+      throw new HttpException('Token expired', HttpStatus.BAD_REQUEST);
+    }
+    user.password = await bcrypt.hash(resetPasswordDto.newPassword, 10);
+    user.resetPasswordToken = null;
+    user.resetPassTokenExpires = null;
+    await this.userCrudService.updateUser(+user.id, user);
+    return 'Password reset successfully';
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<string> {
     const user = await this.userCrudService.getUserWithPassword(
       changePasswordDto.email,
     );
@@ -236,62 +335,7 @@ export class AuthGeneralService {
     }
     user.password = await bcrypt.hash(changePasswordDto.newPassword, 10);
     await this.userCrudService.updateUser(+user.id, user);
-    return { message: 'Password changed successfully', data: null };
-  }
-
-  async forgotPassword(emailOnlyDto: EmailOnlyDto): Promise<ResponseType> {
-    const user = await this.userCrudService.findOneByEmail(emailOnlyDto.email);
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    if (!user.isVerified) {
-      throw new HttpException('User not verified', HttpStatus.BAD_REQUEST);
-    }
-    const resetToken = randomBytes(32).toString('hex');
-    user.resetPasswordToken = resetToken;
-    user.tokenExpiry = new Date(Date.now() + 3600000);
-    await this.userCrudService.updateUser(+user.id, user);
-
-    // Construct the reset password URL
-    const resetPasswordUrl = `${this.configService.get('ORIGIN')}/reset-password?token=${resetToken}`;
-
-    // Send the reset password URL in the email
-    this.mailSenderService.sendResetPasswordEmail({
-      to: user.email,
-      subject: 'Forgot Password',
-      text: `${resetPasswordUrl}`,
-      user: user,
-    });
-
-    return {
-      message: 'Reset password instructions sent to your email',
-      data: null,
-    };
-  }
-
-  async resetPassword(
-    resetPasswordDto: ResetPasswordDto,
-  ): Promise<ResponseType> {
-    const user = await this.userCrudService.findOneByResetToken(
-      resetPasswordDto.token,
-    );
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-    if (!user.isVerified) {
-      throw new HttpException('User not verified', HttpStatus.BAD_REQUEST);
-    }
-    if (user.resetPasswordToken !== resetPasswordDto.token) {
-      throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
-    }
-    if (new Date() > user.tokenExpiry) {
-      throw new HttpException('Token expired', HttpStatus.BAD_REQUEST);
-    }
-    user.password = await bcrypt.hash(resetPasswordDto.newPassword, 10);
-    user.resetPasswordToken = null;
-    user.tokenExpiry = null;
-    await this.userCrudService.updateUser(+user.id, user);
-    return { message: 'Password reset successfully', data: null };
+    return 'Password changed successfully';
   }
 
   private generateToken(user: UserEntity): Promise<string> {
@@ -304,9 +348,44 @@ export class AuthGeneralService {
       },
       {
         expiresIn: this.configService.get<string>('JWT_EXPIRES_IN'),
-        issuer: 'brainstation-23',
+        issuer: 'noboshop.brainstation-23.com',
         secret: this.configService.get<string>('JWT_SECRET'),
       },
     );
+  }
+
+  private async generateRefreshToken(user: UserEntity): Promise<{ token: string; expires: Date }> {
+    const expiresIn = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'); // e.g., '10d'
+    const token = await this.jwtService.signAsync(
+      {
+        id: user.id,
+      },
+      {
+        expiresIn,
+        issuer: 'noboshop.brainstation-23.com',
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      },
+    );
+    const expires = new Date();
+    expires.setDate(expires.getDate() + parseInt(expiresIn, 10)); // Handling '10d' as 10 days
+    return { token, expires };
+}
+
+  async logout(token: string) {
+    this.tokenBlacklist.add(token);
+    this.trimBlacklistIfNeeded();
+  }
+
+  private isTokenBlacklisted(token: string): boolean {
+  return this.tokenBlacklist.has(token);
+  }
+
+  private trimBlacklistIfNeeded(): void {
+    if (this.tokenBlacklist.size > this.maxBlacklistSize) {
+      const tokensToRemove = this.tokenBlacklist.size - this.maxBlacklistSize;
+      console.log('Removing', tokensToRemove, 'oldest tokens from blacklist',);
+      const oldestTokens = Array.from(this.tokenBlacklist.values()).slice(0, tokensToRemove);
+      oldestTokens.forEach(token => this.tokenBlacklist.delete(token));
+    }
   }
 }
