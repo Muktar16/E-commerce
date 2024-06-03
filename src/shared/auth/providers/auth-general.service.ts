@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
-import * as moment from 'moment';
+
 import { generate } from 'otp-generator';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { CartService } from 'src/modules/cart/providers/cart.service';
@@ -25,11 +25,9 @@ import { SignUpDto } from '../dtos/auth.signup.dto';
 import { VerifyEmailDto } from '../dtos/auth.verify-email.dto';
 import { UserResponseDto } from '../dtos/user-response.dto';
 
+const moment = require('moment');
 @Injectable()
 export class AuthGeneralService {
-  private readonly tokenBlacklist: Set<string>;
-  private readonly maxBlacklistSize: number;
-
   constructor(
     private userCrudService: UserCrudService,
     private jwtService: JwtService,
@@ -37,15 +35,12 @@ export class AuthGeneralService {
     private mailSenderService: MailSenderService,
     private cartService: CartService,
     private smsService: SmsService,
-  ) {
-    this.tokenBlacklist = new Set();
-    this.maxBlacklistSize = 1000;
-  }
+  ) {}
 
   async customerSignup(signupUserDto: SignUpDto): Promise<UserResponseDto> {
-    const userExist = await this.userCrudService.findUserByConditions(
-      { email: signupUserDto.email }
-    );
+    const userExist = await this.userCrudService.findUserByConditions({
+      email: signupUserDto.email,
+    });
     if (userExist) {
       throw new BadRequestException('User already exists');
     }
@@ -61,16 +56,24 @@ export class AuthGeneralService {
     user = await this.userCrudService.updateUser(+user.id, user);
 
     // Send OTP via SMS
-    // const sms = this.smsService.sendSMS();
+    // const sms = await this.smsService.sendSMS();
     // console.log(sms);
     // Send OTP via email
-    this.mailSenderService.sendOTP({
-      to: user.email,
-      subject: `Welcome to NoboShop, ${user.name}!`,
-      text: `${user.otp}`,
-      user: user,
-    });
-    return user;
+    try {
+      await this.mailSenderService.sendOTP({
+        to: user.email,
+        subject: `Welcome to NoboShop, ${user.name}!`,
+        text: `${user.otp}`,
+        user: user,
+      });
+      return user;
+    } catch (error) {
+      await this.userCrudService.deleteAccount(+user.id);
+      throw new HttpException(
+        'Error sending email',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async specialSignUp(
@@ -98,20 +101,24 @@ export class AuthGeneralService {
   }
 
   async verifyEmail(verifyEmailDto: VerifyEmailDto) {
-    const user = await this.userCrudService.findOneByEmail(
-      verifyEmailDto.email,
-    );
+    const user = await this.userCrudService.findUserByConditions({
+      email: verifyEmailDto.email,
+    });
+    // console.log('user', user);
     if (!user) {
       throw new HttpException('Email Not found', HttpStatus.NOT_FOUND);
     }
     if (user.otp !== verifyEmailDto.otp) {
       throw new HttpException('Invalid OTP', HttpStatus.BAD_REQUEST);
     }
+    console.log('user.otpCreatedAt', user.otpCreatedAt);
     // const offsetInMilliseconds = new Date().getTimezoneOffset() * 60000;
     const currentTime = moment();
+    console.log('currentTime', currentTime);
     const otpCreatedAt = moment(user.otpCreatedAt);
+    console.log('otpCreatedAt', otpCreatedAt);
     const minutesSinceCreatedAt = currentTime.diff(otpCreatedAt, 'minutes');
-
+    console.log('minutesSinceCreatedAt', minutesSinceCreatedAt);
     if (
       minutesSinceCreatedAt > this.configService.get<number>('OTP_EXPIRES_IN')
     ) {
@@ -160,10 +167,6 @@ export class AuthGeneralService {
     });
     return 'OTP sent to your email';
   }
-
-  // async signIn(userInfo: UserEntity): Promise<string> {
-  //   return await this.generateToken(userInfo);
-  // }
 
   async signIn(
     userInfo: UserEntity,
@@ -338,6 +341,10 @@ export class AuthGeneralService {
     return 'Password changed successfully';
   }
 
+  async logout(token: string) {
+    console.log('Token blacklisted:');
+  }
+
   private generateToken(user: UserEntity): Promise<string> {
     return this.jwtService.signAsync(
       {
@@ -354,7 +361,9 @@ export class AuthGeneralService {
     );
   }
 
-  private async generateRefreshToken(user: UserEntity): Promise<{ token: string; expires: Date }> {
+  private async generateRefreshToken(
+    user: UserEntity,
+  ): Promise<{ token: string; expires: Date }> {
     const expiresIn = this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'); // e.g., '10d'
     const token = await this.jwtService.signAsync(
       {
@@ -369,23 +378,5 @@ export class AuthGeneralService {
     const expires = new Date();
     expires.setDate(expires.getDate() + parseInt(expiresIn, 10)); // Handling '10d' as 10 days
     return { token, expires };
-}
-
-  async logout(token: string) {
-    this.tokenBlacklist.add(token);
-    this.trimBlacklistIfNeeded();
-  }
-
-  private isTokenBlacklisted(token: string): boolean {
-  return this.tokenBlacklist.has(token);
-  }
-
-  private trimBlacklistIfNeeded(): void {
-    if (this.tokenBlacklist.size > this.maxBlacklistSize) {
-      const tokensToRemove = this.tokenBlacklist.size - this.maxBlacklistSize;
-      console.log('Removing', tokensToRemove, 'oldest tokens from blacklist',);
-      const oldestTokens = Array.from(this.tokenBlacklist.values()).slice(0, tokensToRemove);
-      oldestTokens.forEach(token => this.tokenBlacklist.delete(token));
-    }
   }
 }

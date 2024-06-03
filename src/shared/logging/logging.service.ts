@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { promises as fsPromises, existsSync } from 'fs';
-import { join, dirname } from 'path';
+import { existsSync, promises as fsPromises } from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class LoggingService {

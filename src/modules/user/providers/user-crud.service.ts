@@ -6,6 +6,7 @@ import { AllUsersResponseDto } from '../dtos/all-users-response.dto';
 import { FilterUserDto } from '../dtos/filter-user.dto';
 import { PaginationDto } from '../../../common/dtos/pagination.dto';
 import { UserEntity } from '../entities/user.entity';
+import { AuthGeneralService } from 'src/shared/auth/providers/auth-general.service';
 
 @Injectable()
 export class UserCrudService {
@@ -45,13 +46,13 @@ export class UserCrudService {
     return { users, total };
   }
 
-  async deleteAccount(id: number): Promise<ResponseType> {
+  async deleteAccount(id: number): Promise<UserEntity> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    await this.userRepository.softDelete(id);
-    return { message: 'Account deleted successfully', data: user };
+    await this.userRepository.delete(id);
+    return user;
   }
 
   async findOneByEmail(email: string) {
@@ -99,7 +100,10 @@ export class UserCrudService {
     });
     if (ifExist) {
       await this.userRepository.restore(+ifExist.id);
-      await this.userRepository.update(+ifExist.id, {...user, isVerified: false});
+      await this.userRepository.update(+ifExist.id, {
+        ...user,
+        isVerified: false,
+      });
       return await this.findOneById(+ifExist.id);
     } else {
       user = this.userRepository.create(user);

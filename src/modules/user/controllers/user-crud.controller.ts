@@ -21,6 +21,7 @@ export class UserCrudController {
   @ApiOkResponse({ description: 'My Profile Response', type: UserResponseDto })
   async getMyProfile(@Req() req:any): Promise<UserResponseDto>{
     console.log('User Profile: ', req.user);
+  
     const userProfile = this.userCrudService.findOneById(+req.user.id);
     return plainToInstance(UserResponseDto, userProfile);
   }

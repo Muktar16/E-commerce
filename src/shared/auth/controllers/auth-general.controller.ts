@@ -1,6 +1,15 @@
-import { Body, Controller, Headers, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  HttpException,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { RoleGuard } from '../../guards/role.guard';
@@ -18,6 +27,7 @@ import { AuthGeneralService } from '../providers/auth-general.service';
 
 @ApiTags('Auth')
 @Controller('auth')
+@ApiBearerAuth()
 export class AuthGeneralController {
   constructor(private readonly authGeneralService: AuthGeneralService) {}
 
@@ -85,10 +95,19 @@ export class AuthGeneralController {
   }
 
   @Post('logout')
-  async logout(@Headers('authorization') authorizationHeader: string): Promise<void> {
-    const [, accessToken] = authorizationHeader.split(' ');
-    this.authGeneralService.logout(accessToken);
+  @UseGuards(AuthGuard('jwt'))
+  async logout(@Req() req: any): Promise<void> {
+    const accessToken = req.headers['authorization'].split(' ')[1];
+    console.log(accessToken);
+    // this.authGeneralService.logout(accessToken);
   }
+
+  // @Post('logout')
+  // async logout(@Headers('authorization') authorizationHeader: string): Promise<void> {
+  //   const [, accessToken] = authorizationHeader.split(' ');
+  //   console.log(accessToken);
+  //   this.authGeneralService.logout(accessToken);
+  // }
 
   @Post('refresh-token')
   @ApiOkResponse({ description: 'Refresh Token', type: SignInResponseDto })
@@ -130,5 +149,4 @@ export class AuthGeneralController {
     changePasswordDto.email = req.user.email;
     return this.authGeneralService.changePassword(changePasswordDto);
   }
-  
 }

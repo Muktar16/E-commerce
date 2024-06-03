@@ -30,5 +30,6 @@ import { SmsModule } from '../smssender/sms/sms.module';
   ],
   controllers: [AuthGeneralController],
   providers: [AuthGeneralService, LocalStrategy, JwtStrategy],
+  exports: [AuthGeneralService],
 })
 export class AuthModule {}
