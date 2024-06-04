@@ -24,6 +24,9 @@ import { ResetPasswordDto } from '../dtos/auth.reset-password.dto';
 import { SignUpDto } from '../dtos/auth.signup.dto';
 import { VerifyEmailDto } from '../dtos/auth.verify-email.dto';
 import { UserResponseDto } from '../dtos/user-response.dto';
+import { In, Repository } from 'typeorm';
+import { SessionEntity } from '../entities/sessions.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 const moment = require('moment');
 @Injectable()
@@ -35,6 +38,8 @@ export class AuthGeneralService {
     private mailSenderService: MailSenderService,
     private cartService: CartService,
     private smsService: SmsService,
+    @InjectRepository(SessionEntity)
+    private sessionRepository: Repository<SessionEntity>,
   ) {}
 
   async customerSignup(signupUserDto: SignUpDto): Promise<UserResponseDto> {
@@ -177,7 +182,9 @@ export class AuthGeneralService {
     userInfo.refreshToken = refreshToken.token;
     userInfo.refreshTokenExpires = refreshToken.expires;
     await this.userCrudService.updateUser(+userInfo.id, userInfo);
-
+    // save session token in the database
+    const session =  this.sessionRepository.create({user: {id: userInfo.id}, token: accessToken});
+    await this.sessionRepository.save(session);
     return { accessToken, refreshToken: refreshToken.token };
   }
 
@@ -342,7 +349,8 @@ export class AuthGeneralService {
   }
 
   async logout(token: string) {
-    console.log('Token blacklisted:');
+    await this.sessionRepository.delete({ token });
+    return 'Logged out successfully';
   }
 
   private generateToken(user: UserEntity): Promise<string> {

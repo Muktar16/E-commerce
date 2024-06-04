@@ -6,6 +6,7 @@ export enum TableNames {
     ORDERS = 'orders',
     CART_ITEMS = 'cart_items',
     CARTS = 'carts',
+    SESSIONS = 'sessions',
 
     // not yet defined in the database
     REVIEWS = 'reviews',

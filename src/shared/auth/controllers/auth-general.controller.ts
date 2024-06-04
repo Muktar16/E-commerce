@@ -96,10 +96,10 @@ export class AuthGeneralController {
 
   @Post('logout')
   @UseGuards(AuthGuard('jwt'))
-  async logout(@Req() req: any): Promise<void> {
+  async logout(@Req() req: any) {
     const accessToken = req.headers['authorization'].split(' ')[1];
     console.log(accessToken);
-    // this.authGeneralService.logout(accessToken);
+    return await this.authGeneralService.logout(accessToken);
   }
 
   // @Post('logout')

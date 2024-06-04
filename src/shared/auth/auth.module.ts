@@ -10,6 +10,9 @@ import { CartModule } from 'src/modules/cart/cart.module';
 import { AuthGeneralController } from './controllers/auth-general.controller';
 import { AuthGeneralService } from './providers/auth-general.service';
 import { SmsModule } from '../smssender/sms/sms.module';
+import { Type } from 'class-transformer';
+import { SessionEntity } from './entities/sessions.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -19,6 +22,7 @@ import { SmsModule } from '../smssender/sms/sms.module';
     MailSenderModule,
     CartModule,
     SmsModule,
+    TypeOrmModule.forFeature([SessionEntity]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
