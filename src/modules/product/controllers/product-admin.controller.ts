@@ -2,23 +2,22 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
   Param,
   Post,
   Put,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { plainToInstance } from 'class-transformer';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { RoleGuard } from 'src/shared/guards/role.guard';
-import { ProductEntity } from '../entities/product.entity';
 import { CreateProductDto } from '../dtos/create-product.dto';
-import { ProductAdminService } from '../providers/product-admin.service';
 import { UpdateProductDto } from '../dtos/update-product.dto';
-import { plainToInstance } from 'class-transformer';
+import { ProductEntity } from '../entities/product.entity';
+import { ProductAdminService } from '../providers/product-admin.service';
 
-@ApiTags('Admin/Product')
+@ApiTags('Admin/Products')
 @ApiBearerAuth()
 @Controller('admin/products')
 @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
@@ -33,6 +32,12 @@ export class ProductAdminController {
   create(@Body() createProductDto: CreateProductDto) {
     return this.productAdminService.create(createProductDto);
   }
+
+  // @Post('bulk')
+  // @ApiOkResponse({description: 'Products Created Successfully', type: [ProductEntity]})
+  // createBulk(@Body() createBulkProductsDto: CreateBulkProductsDto{
+  //   return this.
+  // }
 
   @ApiOkResponse({
     description: 'Product Updated Successfully',
@@ -51,7 +56,7 @@ export class ProductAdminController {
   }
 
   @Put('restore/:id')
-  
+  @ApiOkResponse({description: 'Restored Successfully', type: ProductEntity})
   restore(@Param('id') id: string) {
     return this.productAdminService.restore(+id);
   }

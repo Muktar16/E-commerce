@@ -18,6 +18,6 @@ export class Category extends AbstractEntity<Category> {
   description: string;
 
   @Expose()
-  @OneToMany(() => ProductEntity, (product) => product.category)
+  @OneToMany(() => ProductEntity, (product) => product.id)
   products: ProductEntity[];
 }

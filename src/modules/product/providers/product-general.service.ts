@@ -1,17 +1,17 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, ILike, Repository } from 'typeorm';
-import { CategoryService } from '../../category/providers/category.service';
 import { ProductEntity } from '../entities/product.entity';
 import { FilterProductDto } from '../dtos/filter-product.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { CategoryGeneralService } from 'src/modules/category/providers/category-general.service';
 
 @Injectable()
 export class ProductGeneralService {
   constructor(
     @InjectRepository(ProductEntity)
     private productRepository: Repository<ProductEntity>,
-    private categoryService: CategoryService,
+    private categorGeneralService: CategoryGeneralService,
   ) {}
 
   async findAll( 
@@ -73,7 +73,7 @@ export class ProductGeneralService {
   async updateById(id: number, updateProductDto: any) {
     delete updateProductDto.updatedAt;
     if (updateProductDto.categoryId) {
-      updateProductDto.category = await this.categoryService.findOne(
+      updateProductDto.category = await this.categorGeneralService.findOne(
         updateProductDto.categoryId,
       );
       delete updateProductDto.categoryId;

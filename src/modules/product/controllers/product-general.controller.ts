@@ -6,7 +6,7 @@ import { ProductGeneralService } from '../providers/product-general.service';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { plainToInstance } from 'class-transformer';
 import { AllProductResponseDto } from '../dtos/all-product-response.dto';
-@ApiTags('Product')
+@ApiTags('Products')
 @ApiBearerAuth()
 @Controller('products')
 export class ProductGeneralController {
