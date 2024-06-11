@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { OrderedProduct } from 'src/common/interfaces/ordered-product.interface';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateOrderDto {
   @IsString()
@@ -11,4 +10,22 @@ export class CreateOrderDto {
     description: 'Shipping Address is required',
   })
   shippingAddress: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'Contact Number is required' })
+  @ApiProperty({
+    example: '+880151892796',
+    type: 'string',
+    description: 'Contact Number is required',
+  })
+  contactNumber: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    example: 'PROMO10',
+    type: 'string',
+    description: 'Promo Code(optional)',
+  })
+  promoCode: string;
 }

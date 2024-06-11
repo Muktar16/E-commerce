@@ -8,9 +8,12 @@ import { UserOrderController } from './controllers/user-order.controller';
 import { OrderEntity } from './entities/order.entity';
 import { AdminOrderService } from './providers/admin-order.service';
 import { UserOrderService } from './providers/user-order.service';
+import { PromoModule } from '../promo/promo.module';
+import { DiscountModule } from '../discount/discount.module';
+import { UserPromoEntity } from '../promo/entities/user_promos.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OrderEntity]),CartModule, UserModule, ProductModule],
+  imports: [TypeOrmModule.forFeature([OrderEntity, UserPromoEntity]),CartModule, UserModule, ProductModule, PromoModule, DiscountModule],
   controllers: [UserOrderController, AdminOrderController],
   providers: [UserOrderService, AdminOrderService],
 })

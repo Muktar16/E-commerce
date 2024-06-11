@@ -4,6 +4,7 @@ import { ResponseType } from 'src/common/interfaces/response.interface';
 import { OrderEntity } from '../entities/order.entity';
 import { Repository } from 'typeorm';
 import { UpdateStatusDto } from '../dtos/update-status.dto';
+import { GetAllOrdersQueryDto } from '../dtos/get-all-orders-query.dto';
 
 @Injectable()
 export class AdminOrderService {
@@ -30,22 +31,16 @@ export class AdminOrderService {
     };
   }
 
-  async deleteOrder(id: number): Promise<ResponseType> {
-    const order = await this.orderRepository.findOne({
-      // where: { id, isDeleted: false },
-    });
+  async deleteOrder(id: number): Promise<string> {
+    const order = await this.orderRepository.findOne({where: { id }});
     if (!order) {
       throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
     }
-    // order.isDeleted = true;
     await this.orderRepository.softDelete(order.id);
-    return {
-      data: null,
-      message: 'Order deleted successfully',
-    };
+    return 'Order deleted successfully';
   }
 
-  async getAllOrders(query: any): Promise<ResponseType> {
+  async getAllOrders(query: GetAllOrdersQueryDto) {
     const { orderStatus, dateFrom, dateTo, userId, limit, offset, page, size } = query;
 
     const whereCondition: any = { isDeleted: false };
@@ -79,9 +74,6 @@ export class AdminOrderService {
       skip,
     });
 
-    return {
-      data: {orders, total},
-      message: 'Orders fetched successfully',
-    };
+    return { data: orders, total };
   }
 }

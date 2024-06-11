@@ -8,9 +8,14 @@ import { LoggingModule } from './shared/logging/logging.module';
 import { TransformInterceptor } from './common/interceptors/transform/transform.interceptor';
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 10,
+    }]),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [
@@ -34,6 +39,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       }),
       inject: [ConfigService],
     }),
+    
     ModulesModule,
     SharedModule,
     LoggingModule,

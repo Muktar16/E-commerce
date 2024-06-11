@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, ILike, Repository } from 'typeorm';
+import { FindManyOptions, ILike, In, Repository } from 'typeorm';
 import { ProductEntity } from '../entities/product.entity';
 import { FilterProductDto } from '../dtos/filter-product.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
@@ -46,7 +46,7 @@ export class ProductGeneralService {
 
     const options: FindManyOptions<ProductEntity> = {
       where: where.length ? where : undefined,
-      relations: ['category'],
+      relations: { category: true, discount: true },
       skip: (page - 1) * limit,
       take: limit,
     };
@@ -59,7 +59,7 @@ export class ProductGeneralService {
   async findOne(id: number) {
     const product = this.productRepository.findOne({
       where: { id },
-      relations: ['category'],
+      relations: { category: true , discount: true },
     });
     if (!product) {
       throw new HttpException(
@@ -87,5 +87,9 @@ export class ProductGeneralService {
 
   async findProductBySku(sku: string) {
     return await this.productRepository.findOne({ where: { sku } });
+  }
+
+  async findAllByIds(ids: number[]) {
+    return await this.productRepository.findBy({id: In(ids)});
   }
 }

@@ -163,6 +163,7 @@ export class AuthGeneralService {
       upperCaseAlphabets: false,
       specialChars: false,
     });
+    user.otpCreatedAt = new Date();
     await this.userCrudService.updateUser(+user.id, user);
     this.mailSenderService.sendOTP({
       to: user.email,

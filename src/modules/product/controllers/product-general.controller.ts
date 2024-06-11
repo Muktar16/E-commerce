@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FilterProductDto } from '../dtos/filter-product.dto';
 import { ProductEntity } from '../entities/product.entity';
 import { ProductGeneralService } from '../providers/product-general.service';
@@ -13,6 +13,7 @@ export class ProductGeneralController {
   constructor(private readonly productService: ProductGeneralService) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get all products' })
   @ApiOkResponse({
     description: 'List of all Products',
     type: AllProductResponseDto,
@@ -29,6 +30,7 @@ export class ProductGeneralController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get product by ID' })
   @ApiOkResponse({ description: 'Product Response', type: ProductEntity })
   async findOne(@Param('id') id: string): Promise<ProductEntity> {
     return plainToInstance(ProductEntity, await this.productService.findOne(+id));

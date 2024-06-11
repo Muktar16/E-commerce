@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { RoleGuard } from '../../guards/role.guard';
@@ -36,12 +36,14 @@ export class AuthGeneralController {
     description: 'Customer signup Response',
     type: UserResponseDto,
   })
+  @ApiOperation({ summary: 'Customer Signup' })
   async customerSignup(@Body() signUpDto: SignUpDto): Promise<UserResponseDto> {
     const createdUser = this.authGeneralService.customerSignup(signUpDto);
     return plainToInstance(UserResponseDto, createdUser);
   }
 
   @Post('signup/special')
+  @ApiOperation({ summary: 'Admin/Delivery-personnel Signup' })
   @ApiOkResponse({
     description: 'Admin/Delivery-personnel signup Response',
     type: UserResponseDto,
@@ -54,6 +56,7 @@ export class AuthGeneralController {
   }
 
   @Post('verify-email')
+  @ApiOperation({ summary: 'Verify Email' })
   @ApiOkResponse({
     description: 'Email verification Response',
     type: UserResponseDto,
@@ -66,18 +69,21 @@ export class AuthGeneralController {
   }
 
   @Post('approve-admin')
+  @ApiOperation({summary: 'Approve Admin'})
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.SUPERADMIN]))
   async approveAdmin(@Body() emailOnlyDto: EmailOnlyDto) {
     return this.authGeneralService.approveAdmin(emailOnlyDto);
   }
 
   @Post('approve-delivery-person')
+  @ApiOperation({summary: 'Approve Delivery Person'})
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.SUPERADMIN, Roles.ADMIN]))
   async approveDeliveryAgent(@Body() emailOnlyDto: EmailOnlyDto) {
     return this.authGeneralService.approveDeliveryAgent(emailOnlyDto);
   }
 
   @Post('signin')
+  @ApiOperation({ summary: 'Signin' })
   @UseGuards(AuthGuard('local'))
   @ApiOkResponse({ description: 'Signin Response', type: SignInResponseDto })
   async signin(
@@ -95,6 +101,7 @@ export class AuthGeneralController {
   }
 
   @Post('logout')
+  @ApiOperation({ summary: 'Logout' })
   @UseGuards(AuthGuard('jwt'))
   async logout(@Req() req: any) {
     const accessToken = req.headers['authorization'].split(' ')[1];
@@ -110,6 +117,7 @@ export class AuthGeneralController {
   // }
 
   @Post('refresh-token')
+  @ApiOperation({ summary: 'Refresh' })
   @ApiOkResponse({ description: 'Refresh Token', type: SignInResponseDto })
   async refreshToken(
     @Body() refreshTokenDto: RefreshTokenDto,
@@ -124,11 +132,13 @@ export class AuthGeneralController {
   }
 
   @Post('forgot-password')
+  @ApiOperation({ summary: 'Forgot Password' })
   async forgotPassword(@Body() emailOnlyDto: EmailOnlyDto): Promise<string> {
     return this.authGeneralService.forgotPassword(emailOnlyDto);
   }
 
   @Post('reset-password')
+  @ApiOperation({ summary: 'Reset Password' })
   async resetPassword(
     @Body() resePasswordDto: ResetPasswordDto,
   ): Promise<string> {
@@ -136,11 +146,13 @@ export class AuthGeneralController {
   }
 
   @Post('resend-otp')
+  @ApiOperation({ summary: 'Resend OTP' })
   async resendOTP(@Body() resendOTPDto: EmailOnlyDto): Promise<string> {
     return this.authGeneralService.resendOTP(resendOTPDto);
   }
 
   @Post('change-password')
+  @ApiOperation({ summary: 'Change Password' })
   @UseGuards(AuthGuard('jwt'))
   async changePassword(
     @Body() changePasswordDto: ChangePasswordDto,

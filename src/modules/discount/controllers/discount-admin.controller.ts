@@ -25,6 +25,8 @@ import { CreateDiscountDto } from '../dto/create-discount.dto';
 import { DiscountResponseDto } from '../dto/discount-response.dto';
 import { UpdateDiscountDto } from '../dto/update-discount.dto';
 import { DiscountAdminService } from '../providers/discount-admin.service';
+import { ApplyDiscountDto } from '../dto/apply-discount.dto';
+import { DiscountEntity } from '../entities/discount.entity';
 
 @ApiTags('Admin/Discounts')
 @ApiBearerAuth()
@@ -39,6 +41,7 @@ export class DiscountAdminController {
   async create(
     @Body() createDiscountDto: CreateDiscountDto,
   ): Promise<DiscountResponseDto> {
+    console.log('createDiscountDto', createDiscountDto);
     const discount = await this.discountAdminService.create(createDiscountDto);
     return plainToInstance(DiscountResponseDto, discount);
   }
@@ -77,9 +80,8 @@ export class DiscountAdminController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete discount' })
-  @ApiOkResponse({ status: 204 })
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  @ApiOkResponse({ type: String, description: 'Discount deleted'})
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<string> {
     return this.discountAdminService.remove(id);
   }
 
@@ -91,5 +93,13 @@ export class DiscountAdminController {
   ): Promise<DiscountResponseDto> {
     const restoredDiscount = await this.discountAdminService.restore(id);
     return plainToInstance(DiscountResponseDto, restoredDiscount);
+  }
+
+  // route to apply discount to products
+  @Post('/apply')
+  @ApiOperation({ summary: 'Apply discount to products' })
+  @ApiOkResponse({ status: 200, type: String })
+  async applyDiscount(@Body() applyDiscountDto:ApplyDiscountDto): Promise<DiscountEntity> {
+    return this.discountAdminService.applyDiscountToProducts(applyDiscountDto);
   }
 }

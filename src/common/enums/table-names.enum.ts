@@ -9,6 +9,7 @@ export enum TableNames {
     SESSIONS = 'sessions',
     PROMOS = 'promos',
     DISCOUNTS = 'discounts',
+    USER_PROMOS = 'user_promos',
 
     // not yet defined in the database
     REVIEWS = 'reviews',

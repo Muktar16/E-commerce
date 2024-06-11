@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseType } from 'src/common/interfaces/response.interface';
-import { FindOptionsWhere, ILike, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
 import { AllUsersResponseDto } from '../dtos/all-users-response.dto';
 import { FilterUserDto } from '../dtos/filter-user.dto';
 import { PaginationDto } from '../../../common/dtos/pagination.dto';
@@ -82,7 +82,7 @@ export class UserCrudService {
   async getUserWithCart(userId: number) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: { cart: { cartItems: { product: true } } },
+      relations: { cart: { cartItems: { product: {discount:true} } } },
     });
     if (!user || !user.cart) {
       throw new HttpException(
@@ -113,5 +113,14 @@ export class UserCrudService {
 
   async findUserByConditions(where: FindOptionsWhere<UserEntity>) {
     return this.userRepository.findOne({ where });
+  }
+
+  async findAllByIds(ids: number[]): Promise<UserEntity[]> {
+    return this.userRepository.find({ where: { id: In(ids) } });
+  }
+
+  async getUserPromos(userId: number) {
+    const user = await this.userRepository.findOne({where: {id: userId}, relations: {userPromos: {promo: true}}});
+    return user.userPromos;
   }
 }

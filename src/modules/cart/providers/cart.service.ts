@@ -21,14 +21,14 @@ export class CartService {
     return this.cartRepository.save(cart);
   }
 
-  async getCart(userId: number) {
+  async getCart(userId: number):Promise<CartEntity> {
     return await this.cartRepository.findOne({
-      where: { userId,  },
+      where: { userId },
       relations: { cartItems: { product: true } },
     });
   }
 
-  async addItemToCart(itemInfo: AddItemDto, userId: number) {
+  async addItemToCart(itemInfo: AddItemDto, userId: number):Promise<string> {
     const product = await this.productService.findOne(itemInfo.productId);
     if (!product) {
       throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
@@ -41,15 +41,17 @@ export class CartService {
     }
 
     let cart = await this.cartRepository.findOne({
-      where: { userId,  },
+      where: { userId },
       relations: { cartItems: { product: true } },
     });
 
-    const existingProduct = cart.cartItems.find((cartItem) => cartItem.product.id === itemInfo.productId);
+    const existingProduct = cart.cartItems.find(
+      (cartItem) => cartItem.product.id === itemInfo.productId,
+    );
     if (existingProduct) {
       existingProduct.quantity = itemInfo.quantity;
       await this.cartProductRepository.save(existingProduct);
-      return existingProduct;
+      return "Item Successfully added to cart";
     }
 
     const cartProduct = this.cartProductRepository.create({
@@ -59,33 +61,37 @@ export class CartService {
     cartProduct.cart = cart;
     cartProduct.product = product;
     await this.cartProductRepository.save(cartProduct);
-    return cartProduct;
+    return "Item Successfully added to cart";
   }
 
-  async removeItemFromCart(productId: number, userId: number) {
+  async removeItemFromCart(productId: number, userId: number):Promise<string> {
     const cart = await this.cartRepository.findOne({
-      where: { userId,  },
-      relations: ['cartProducts', 'cartProducts.product'],
+      where: { userId },
+      relations: { cartItems: { product: true } },
     });
-    const cartProduct = cart.cartItems.find((cartItem) => cartItem.product.id === +productId);
+    console.log(cart);
+    const cartProduct = cart.cartItems.find(
+      (cartItem) => cartItem.product.id === productId,
+    );
     if (!cartProduct) {
-      throw new HttpException('Product not found in cart', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Product not found in cart',
+        HttpStatus.NOT_FOUND,
+      );
     }
-    // cartProduct.isDeleted = true;
     await this.cartProductRepository.softDelete(cartProduct.id);
-    return cartProduct;
+    return 'Item successfully removed from cart';
   }
 
-  async clearCart(userId: number) {
+  async clearCart(userId: number):Promise<string> {
     const cart = await this.cartRepository.findOne({
-      where: { userId, },
-      relations: ['cartProducts'],
+      where: { userId },
+      relations: { cartItems: { product: true } },
     });
-    cart.cartItems.forEach(async(cartItem) => {
-      // cartItem.isDeleted = true;
+    cart.cartItems.forEach(async (cartItem) => {
       await this.cartProductRepository.softDelete(cartItem.id);
     });
     await this.cartProductRepository.softRemove(cart.cartItems);
-    return cart;
+    return "Cart cleared successfully";
   }
 }

@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { RoleGuard } from 'src/shared/guards/role.guard';
@@ -31,6 +31,7 @@ export class CategoryAdminController {
     description: 'Category Created Successfully',
     type: Category,
   })
+  @ApiOperation({ summary: 'Create Category' })
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   async create(
     @Body() createCategoryDto: CreateCategoryDto,
@@ -40,6 +41,7 @@ export class CategoryAdminController {
   }
 
   @Post('bulk')
+  @ApiOperation({ summary: 'Create Bulk Categories' })
   @ApiOkResponse({
     description: 'Categories Created Successfully',
     type: [Category],
@@ -67,6 +69,7 @@ export class CategoryAdminController {
   // }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update Category' })
   @ApiOkResponse({ description: 'Category Updated Successfully', type: Category })
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   update(
@@ -77,6 +80,7 @@ export class CategoryAdminController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete Category' })
   @ApiOkResponse({ description: 'Category Deleted Successfully',})
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   async delete(@Param('id') id: string): Promise<string> {
@@ -84,12 +88,14 @@ export class CategoryAdminController {
   }
 
   @Put('restore/:id')
+  @ApiOperation({ summary: 'Restore Category' })
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   async restore(@Param('id') id: string): Promise<string> {
     return await this.categoryAdminService.restore(+id);
   }
 
   @Get('items/:id')
+  @ApiOperation({ summary: 'Get Category Items' })
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   @ApiOkResponse({
     description: 'Category Items',

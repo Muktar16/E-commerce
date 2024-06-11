@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsNumber, Max, Min } from 'class-validator';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { TableNames } from 'src/common/enums/table-names.enum';
 import { ProductEntity } from 'src/modules/product/entities/product.entity';
-import { Entity, Column, OneToMany } from 'typeorm';
+import { ColumnNumericTransformer } from 'src/utility/stringToDecimalTransformer';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity(TableNames.DISCOUNTS)
 export class DiscountEntity extends AbstractEntity<DiscountEntity> {
@@ -20,9 +20,8 @@ export class DiscountEntity extends AbstractEntity<DiscountEntity> {
   type: string;
 
   @Expose()
-  @IsNumber()
   @ApiProperty({ type: 'number', description: 'Discount value', example: 20 })
-  @Column({ name: 'value', type: 'decimal', precision: 10, scale: 2, default: 0 })
+  @Column({ name: 'value', type:'decimal', precision:10, scale:2, default: 0, transformer: new ColumnNumericTransformer()})
   value: number;
 
   @Expose()
@@ -35,6 +34,7 @@ export class DiscountEntity extends AbstractEntity<DiscountEntity> {
   @Column({ name: 'valid_to', type: 'date' })
   validTo: Date;
 
+  @Expose()
   @OneToMany(() => ProductEntity, product => product.discount)
   products: ProductEntity[];
 }

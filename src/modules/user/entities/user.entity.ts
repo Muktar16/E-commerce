@@ -3,10 +3,11 @@ import { IsOptional } from 'class-validator';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { TableNames } from 'src/common/enums/table-names.enum';
 import { Roles } from 'src/common/enums/user-roles.enum';
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { CartEntity } from '../../cart/entities/cart.entity';
 import { OrderEntity } from '../../order/entities/order.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { UserPromoEntity } from 'src/modules/promo/entities/user_promos.entity';
 
 @Entity(TableNames.USERS)
 export class UserEntity extends AbstractEntity<UserEntity> {
@@ -69,6 +70,10 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @OneToMany(() => OrderEntity, (order) => order.id)
   orders: OrderEntity[];
 
+  @OneToMany(() => UserPromoEntity, (userPromo) => userPromo.user)
+  @JoinColumn()
+  public userPromos: UserPromoEntity[];
+  
   toJSON() {
     return instanceToPlain(this);
   }

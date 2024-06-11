@@ -26,7 +26,7 @@ export class ProductEntity extends AbstractEntity<ProductEntity> {
 
   @Expose()
   @ApiProperty({ type: 'number', description: 'Product price', example: 1200 })
-  @Column({ name: 'price', type: 'decimal', precision: 10, scale: 2 })
+  @Column({ name: 'price', type: 'decimal', precision: 10 })
   price: number;
 
   @Expose()
@@ -48,6 +48,6 @@ export class ProductEntity extends AbstractEntity<ProductEntity> {
   @Expose()
   @ApiProperty({ type: 'object', description: 'Product discount', example: { id: 1, name: 'Summer Sale', type: 'percentage', value: 20, validFrom: '2023-01-01', validTo: '2023-12-31' } })
   @ManyToOne(() => DiscountEntity, discount => discount.products)
-  @JoinColumn({ name: 'discount_id' })
+  @JoinColumn()
   discount: DiscountEntity;
 }
