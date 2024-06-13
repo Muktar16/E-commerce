@@ -47,7 +47,14 @@ export class AdminOrderController {
   @Get()
   @ApiOperation({ summary: 'Get all orders' })
   @ApiOkResponse({ description: 'List of all orders', type: [CreateOrderResponseDto] })
-  async getAllOrders(@Query() query: GetAllOrdersQueryDto) {
-    return this.adminOrderService.getAllOrders(query);
+  async getAllOrders() {
+    return this.adminOrderService.getAllOrders({});
   }
+
+  // @Get()
+  // @ApiOperation({ summary: 'Get all orders' })
+  // @ApiOkResponse({ description: 'List of all orders', type: [CreateOrderResponseDto] })
+  // async getAllOrders(@Query() query: GetAllOrdersQueryDto) {
+  //   return this.adminOrderService.getAllOrders(query);
+  // }
 }

@@ -5,6 +5,10 @@ import { OrderEntity } from '../entities/order.entity';
 import { Repository } from 'typeorm';
 import { UpdateStatusDto } from '../dtos/update-status.dto';
 import { GetAllOrdersQueryDto } from '../dtos/get-all-orders-query.dto';
+import { plainToInstance } from 'class-transformer';
+import { ProductEntity } from 'src/modules/product/entities/product.entity';
+import { OrderedProduct } from '../dtos/ordered-product.dto';
+import { PaginatedDataResponseDto } from 'src/common/dtos/PaginatedDataResponse.dto';
 
 @Injectable()
 export class AdminOrderService {
@@ -43,6 +47,7 @@ export class AdminOrderService {
   async getAllOrders(query: GetAllOrdersQueryDto) {
     const { orderStatus, dateFrom, dateTo, userId, limit, offset, page, size } = query;
 
+    console.log('query', query);
     const whereCondition: any = { isDeleted: false };
 
     if (orderStatus) {
@@ -67,13 +72,23 @@ export class AdminOrderService {
     const take = limit || size || 10;
     const skip = offset || ((page - 1) * take) || 0;
 
-    const [orders, total] = await this.orderRepository.findAndCount({
-      where: whereCondition,
+    let [orders, total] = await this.orderRepository.findAndCount({
+      // where: whereCondition,
       relations: ['user'],
       take,
       skip,
     });
-
-    return { data: orders, total };
+    // convert to plain object
+    // orders = orders.map((order) => plainToInstance(OrderEntity, order));
+    // convert order products to plain object
+    orders = orders.map((order) => {
+      order.products = order.products.map((orderProduct) =>
+        plainToInstance(OrderedProduct, orderProduct),
+      );
+      return plainToInstance(OrderEntity, order);
+    });
+    // console.log('orders', orders);
+    // return orders
+    return plainToInstance(PaginatedDataResponseDto, { data: orders, total });
   }
 }

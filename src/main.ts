@@ -30,17 +30,24 @@ async function bootstrap() {
     }),
   );
 
-  // Use cookie parser middleware
-  app.use(cookieParser());
+  // Enable CORS
+  app.enableCors({
+    origin: '*', // Allow all origins
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true, // Allow cookies to be sent with the requests
+  });
 
-  // Use CSRF protection middleware
-  app.use(csurf({
-    cookie: {
-      httpOnly: true,
-      secure: configService.get('NODE_ENV') === 'production', // Use secure cookies in production
-      sameSite: 'strict',
-    },
-  }));
+  // // Use cookie parser middleware
+  // app.use(cookieParser());
+
+  // // Use CSRF protection middleware
+  // app.use(csurf({
+  //   cookie: {
+  //     httpOnly: true,
+  //     secure: configService.get('NODE_ENV') === 'production', // Use secure cookies in production
+  //     sameSite: 'strict',
+  //   },
+  // }));
 
   // Start the application
   await app.listen(+configService.get('APP_PORT') || 9000);

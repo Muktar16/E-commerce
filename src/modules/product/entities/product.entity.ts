@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, instanceToPlain } from 'class-transformer';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { TableNames } from 'src/common/enums/table-names.enum';
 import { Category } from 'src/modules/category/entities/category.entity';
@@ -50,4 +50,8 @@ export class ProductEntity extends AbstractEntity<ProductEntity> {
   @ManyToOne(() => DiscountEntity, discount => discount.products)
   @JoinColumn()
   discount: DiscountEntity;
+
+  toJSON() {
+    return instanceToPlain(this);
+  }
 }
