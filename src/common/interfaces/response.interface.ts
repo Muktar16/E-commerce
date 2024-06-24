@@ -1,4 +1,4 @@
 export interface ResponseType {
-    data: any;
-    message: string;
+  data: any;
+  message: string;
 }

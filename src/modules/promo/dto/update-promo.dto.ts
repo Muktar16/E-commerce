@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-    IsDate,
-    IsInt,
-    IsNumber,
-    IsOptional,
-    IsString,
-    Length,
-    Max,
-    Min
+  IsDate,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+  Max,
+  Min,
 } from 'class-validator';
 
 export class UpdatePromoDto {

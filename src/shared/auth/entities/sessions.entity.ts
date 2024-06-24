@@ -6,10 +6,10 @@ import { Injectable } from '@nestjs/common';
 
 @Entity(TableNames.SESSIONS)
 export class SessionEntity extends AbstractEntity<SessionEntity> {
-  @Column({ name: 'token'})
+  @Column({ name: 'token' })
   token: string;
 
-  @ManyToOne(() => UserEntity, user => user.id)
+  @ManyToOne(() => UserEntity, (user) => user.id)
   @JoinColumn()
   user: UserEntity;
 }

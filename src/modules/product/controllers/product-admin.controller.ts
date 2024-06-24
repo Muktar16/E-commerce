@@ -5,10 +5,15 @@ import {
   Param,
   Post,
   Put,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { RoleGuard } from 'src/shared/guards/role.guard';
@@ -46,12 +51,15 @@ export class ProductAdminController {
   })
   @ApiOperation({ summary: 'Update Product' })
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto): Promise<ProductEntity> {
+  update(
+    @Param('id') id: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ): Promise<ProductEntity> {
     return this.productAdminService.update(+id, updateProductDto);
   }
 
-  @ApiOkResponse({description: 'Deleted Successfully', type: ProductEntity})
-  @ApiOperation({summary: 'Delete Product'})
+  @ApiOkResponse({ description: 'Deleted Successfully', type: ProductEntity })
+  @ApiOperation({ summary: 'Delete Product' })
   @Delete(':id')
   async delete(@Param('id') id: string) {
     const deletedProduct = await this.productAdminService.delete(+id);
@@ -59,8 +67,8 @@ export class ProductAdminController {
   }
 
   @Put('restore/:id')
-  @ApiOperation({summary: 'Restore Product'})
-  @ApiOkResponse({description: 'Restored Successfully', type: ProductEntity})
+  @ApiOperation({ summary: 'Restore Product' })
+  @ApiOkResponse({ description: 'Restored Successfully', type: ProductEntity })
   restore(@Param('id') id: string) {
     return this.productAdminService.restore(+id);
   }

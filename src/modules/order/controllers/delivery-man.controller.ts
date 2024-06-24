@@ -1,15 +1,10 @@
-import {
-    Body,
-    Param,
-    Put,
-    UseGuards
-} from '@nestjs/common';
+import { Body, Param, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
-    ApiBearerAuth,
-    ApiOkResponse,
-    ApiOperation,
-    ApiTags,
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { RoleGuard } from 'src/shared/guards/role.guard';

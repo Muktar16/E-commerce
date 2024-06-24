@@ -31,7 +31,10 @@ export class UserOrderService {
     private readonly userPromoRepository: Repository<UserPromoEntity>,
   ) {}
 
-  async create(createOrderDto: CreateOrderDto, userId: number): Promise<CreateOrderResponseDto> {
+  async create(
+    createOrderDto: CreateOrderDto,
+    userId: number,
+  ): Promise<CreateOrderResponseDto> {
     const user = await this.userService.getUserWithCart(userId);
 
     if (!user.cart.cartItems.length) {
@@ -39,14 +42,23 @@ export class UserOrderService {
     }
 
     const currentDate = moment().toISOString();
-    const { totalAmount, totalAmountAfterDiscount, orderedProducts, promoDiscount } = 
-      await this.calculateTotalAmount(user.cart.cartItems, createOrderDto.promoCode, currentDate, userId);
+    const {
+      totalAmount,
+      totalAmountAfterDiscount,
+      orderedProducts,
+      promoDiscount,
+    } = await this.calculateTotalAmount(
+      user.cart.cartItems,
+      createOrderDto.promoCode,
+      currentDate,
+      userId,
+    );
 
     const orderInvoice = this.calculateOrderInvoice(
       totalAmount,
       totalAmountAfterDiscount,
       promoDiscount,
-      createOrderDto.promoCode
+      createOrderDto.promoCode,
     );
 
     await this.updateStockQuantities(user.cart.cartItems);
@@ -55,7 +67,7 @@ export class UserOrderService {
       createOrderDto,
       user,
       orderedProducts,
-      orderInvoice
+      orderInvoice,
     );
 
     if (createOrderDto.promoCode) {
@@ -67,10 +79,15 @@ export class UserOrderService {
     return plainToInstance(CreateOrderResponseDto, newOrder);
   }
 
-  private async calculateTotalAmount(cartItems, promoCode: string, currentDate: string, userId: number) {
+  private async calculateTotalAmount(
+    cartItems,
+    promoCode: string,
+    currentDate: string,
+    userId: number,
+  ) {
     let totalAmount = 0;
     let totalAmountAfterDiscount = 0;
-    let orderedProducts: OrderedProduct[] = [];
+    const orderedProducts: OrderedProduct[] = [];
     let promoDiscount = 0;
 
     for (const cp of cartItems) {
@@ -83,7 +100,10 @@ export class UserOrderService {
         );
       }
 
-      const { priceAfterDiscount, discount, discountType } = this.applyDiscount(product, currentDate);
+      const { priceAfterDiscount, discount, discountType } = this.applyDiscount(
+        product,
+        currentDate,
+      );
 
       totalAmount += product.price * cp.quantity;
       totalAmountAfterDiscount += priceAfterDiscount * cp.quantity;
@@ -99,11 +119,21 @@ export class UserOrderService {
     }
 
     if (promoCode) {
-      const { promo, userPromo } = await this.validatePromoCode(promoCode, userId, currentDate);
-      promoDiscount = (totalAmountAfterDiscount * promo.discountPercentage) / 100;
+      const { promo, userPromo } = await this.validatePromoCode(
+        promoCode,
+        userId,
+        currentDate,
+      );
+      promoDiscount =
+        (totalAmountAfterDiscount * promo.discountPercentage) / 100;
     }
 
-    return { totalAmount, totalAmountAfterDiscount, orderedProducts, promoDiscount };
+    return {
+      totalAmount,
+      totalAmountAfterDiscount,
+      orderedProducts,
+      promoDiscount,
+    };
   }
 
   private applyDiscount(product, currentDate) {
@@ -130,15 +160,24 @@ export class UserOrderService {
     return { priceAfterDiscount, discount, discountType };
   }
 
-  private async validatePromoCode(promoCode: string, userId: number, currentDate: string) {
-    const promo = await this.promoService.findOneConditionally({ code: promoCode });
+  private async validatePromoCode(
+    promoCode: string,
+    userId: number,
+    currentDate: string,
+  ) {
+    const promo = await this.promoService.findOneConditionally({
+      code: promoCode,
+    });
 
     if (
       !promo ||
       moment(promo.endDate).isBefore(currentDate) ||
       moment(promo.startDate).isAfter(currentDate)
     ) {
-      throw new HttpException('Invalid or expired promo code', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Invalid or expired promo code',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const userPromo = await this.userPromoRepository.findOne({
@@ -146,11 +185,17 @@ export class UserOrderService {
     });
 
     if (!userPromo) {
-      throw new HttpException('Promo code not found for the user', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Promo code not found for the user',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (promo.usageLimit !== null && userPromo.usageCount >= promo.usageLimit) {
-      throw new HttpException('Promo code usage limit exceeded', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Promo code usage limit exceeded',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return { promo, userPromo };
@@ -160,7 +205,7 @@ export class UserOrderService {
     totalAmount: number,
     totalAmountAfterDiscount: number,
     promoDiscount: number,
-    promoCode: string
+    promoCode: string,
   ): OrderInvoice {
     return {
       itemsSubTotal: totalAmount,
@@ -169,7 +214,8 @@ export class UserOrderService {
       promoCode: promoCode,
       promoDiscount: promoDiscount,
       totalOrderAmountAfterDiscount: totalAmountAfterDiscount - promoDiscount,
-      totalPayableAmount: totalAmountAfterDiscount - promoDiscount + DELIVERY_CHARGE,
+      totalPayableAmount:
+        totalAmountAfterDiscount - promoDiscount + DELIVERY_CHARGE,
     };
   }
 
@@ -213,7 +259,9 @@ export class UserOrderService {
   }
 
   async cancelOrder(id: number, userId: number) {
-    const order = await this.orderRepository.findOne({ where: { id, user: { id: userId } } });
+    const order = await this.orderRepository.findOne({
+      where: { id, user: { id: userId } },
+    });
 
     if (!order) {
       throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
@@ -231,7 +279,9 @@ export class UserOrderService {
     }
 
     await this.updateCancelledOrderStock(order.products);
-    order.products = order.products.map(product => plainToInstance(OrderedProduct, product));
+    order.products = order.products.map((product) =>
+      plainToInstance(OrderedProduct, product),
+    );
     order.orderInvoice = plainToInstance(OrderInvoice, order.orderInvoice);
     order.orderStatus = OrderStatus.Cancelled;
     await this.orderRepository.save(order);
@@ -248,32 +298,34 @@ export class UserOrderService {
   }
 
   async findOrderHistory(userId: number) {
-    const orders = await this.orderRepository.find({ where: { user: { id: userId } } });
+    const orders = await this.orderRepository.find({
+      where: { user: { id: userId } },
+    });
 
-    orders.forEach(order => {
+    orders.forEach((order) => {
       order.orderInvoice = plainToInstance(OrderInvoice, order.orderInvoice);
-      order.products = order.products.map(product => plainToInstance(OrderedProduct, product));
+      order.products = order.products.map((product) =>
+        plainToInstance(OrderedProduct, product),
+      );
     });
 
     return orders;
   }
 
   async findOneById(id: number, userId: number) {
-    const order = await this.orderRepository.findOne({ where: { id, user: { id: userId } } });
+    const order = await this.orderRepository.findOne({
+      where: { id, user: { id: userId } },
+    });
     if (!order) {
       throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
     }
     order.orderInvoice = plainToInstance(OrderInvoice, order.orderInvoice);
-    order.products = order.products.map(product => plainToInstance(OrderedProduct, product));
+    order.products = order.products.map((product) =>
+      plainToInstance(OrderedProduct, product),
+    );
     return order;
   }
 }
-
-
-
-
-
-
 
 // import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 // import { InjectRepository } from '@nestjs/typeorm';
@@ -481,14 +533,7 @@ export class UserOrderService {
 //     // return response;
 //     return plainToInstance(CreateOrderResponseDto, newOrder);
 //   }
-  
-  
-  
-  
-  
-  
 
-  
 //   async cancelOrder(id: number, userId: number) {
 //     const order = await this.orderRepository.findOne({ where: { id, user: {id:userId} } });
 //     if (!order) {
@@ -522,18 +567,11 @@ export class UserOrderService {
 //     order.orderStatus = OrderStatus.Cancelled;
 //     await this.orderRepository.save(order);
 
-    
 //     return order;
 //   }
 
-
-
-
-
-
-
 //   async findOrderHistory(userId: number) {
-    
+
 //       const orders = await this.orderRepository.find({
 //         where: {
 //           user: { id: userId },

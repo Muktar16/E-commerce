@@ -139,7 +139,7 @@ export class AuthGeneralService {
     if (user.role === Roles.USER) {
       this.cartService.createCart({ userId: user.id });
     }
-    let updatedUser = await this.userCrudService.updateUser(+user.id, user);
+    const updatedUser = await this.userCrudService.updateUser(+user.id, user);
     return updatedUser;
   }
 
@@ -184,7 +184,10 @@ export class AuthGeneralService {
     userInfo.refreshTokenExpires = refreshToken.expires;
     await this.userCrudService.updateUser(+userInfo.id, userInfo);
     // save session token in the database
-    const session =  this.sessionRepository.create({user: {id: userInfo.id}, token: accessToken});
+    const session = this.sessionRepository.create({
+      user: { id: userInfo.id },
+      token: accessToken,
+    });
     await this.sessionRepository.save(session);
     return { accessToken, refreshToken: refreshToken.token };
   }

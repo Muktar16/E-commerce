@@ -8,7 +8,7 @@ import { ProductAdminService } from './providers/product-admin.service';
 import { ProductAdminController } from './controllers/product-admin.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductEntity]),CategoryModule],
+  imports: [TypeOrmModule.forFeature([ProductEntity]), CategoryModule],
   controllers: [ProductGeneralController, ProductAdminController],
   providers: [ProductGeneralService, ProductAdminService],
   exports: [ProductGeneralService],

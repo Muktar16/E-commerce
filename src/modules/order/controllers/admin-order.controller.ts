@@ -11,7 +11,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { AdminOrderService } from '../providers/admin-order.service';
@@ -28,12 +33,12 @@ export class AdminOrderController {
   constructor(private readonly adminOrderService: AdminOrderService) {}
 
   @ApiOperation({ summary: 'Update order status' })
-  @ApiOkResponse({ description: 'Order status updated successfully', type: CreateOrderResponseDto })
+  @ApiOkResponse({
+    description: 'Order status updated successfully',
+    type: CreateOrderResponseDto,
+  })
   @Put('update-status/:id')
-  update(
-    @Body() updateStatusDto: UpdateStatusDto,
-    @Param('id') id: string,
-  ) {
+  update(@Body() updateStatusDto: UpdateStatusDto, @Param('id') id: string) {
     return this.adminOrderService.updateOrderStatus(+id, updateStatusDto);
   }
 
@@ -41,12 +46,15 @@ export class AdminOrderController {
   @ApiOperation({ summary: 'Delete order' })
   @ApiOkResponse({ description: 'Order deleted successfully', type: String })
   async deleteOrder(@Param('id') id: string): Promise<string> {
-     return this.adminOrderService.deleteOrder(+id);
+    return this.adminOrderService.deleteOrder(+id);
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all orders' })
-  @ApiOkResponse({ description: 'List of all orders', type: [CreateOrderResponseDto] })
+  @ApiOkResponse({
+    description: 'List of all orders',
+    type: [CreateOrderResponseDto],
+  })
   async getAllOrders() {
     return this.adminOrderService.getAllOrders({});
   }

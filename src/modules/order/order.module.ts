@@ -13,7 +13,14 @@ import { DiscountModule } from '../discount/discount.module';
 import { UserPromoEntity } from '../promo/entities/user_promos.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OrderEntity, UserPromoEntity]),CartModule, UserModule, ProductModule, PromoModule, DiscountModule],
+  imports: [
+    TypeOrmModule.forFeature([OrderEntity, UserPromoEntity]),
+    CartModule,
+    UserModule,
+    ProductModule,
+    PromoModule,
+    DiscountModule,
+  ],
   controllers: [UserOrderController, AdminOrderController],
   providers: [UserOrderService, AdminOrderService],
 })

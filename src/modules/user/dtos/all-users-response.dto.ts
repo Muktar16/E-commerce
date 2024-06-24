@@ -6,7 +6,7 @@ export class AllUsersResponseDto {
   @Expose()
   @ApiProperty({ example: 100 })
   total: number;
-  
+
   @Expose()
   @ApiProperty({ type: [UserResponseDto] })
   users: UserResponseDto[];

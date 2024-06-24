@@ -4,8 +4,7 @@ import { ProductEntity } from 'src/modules/product/entities/product.entity';
 import { Expose } from 'class-transformer';
 
 export class CategoryItemsResponseDto extends UpdateCategoryDto {
-    
-    @Expose()
-    @ApiProperty({ type: ProductEntity, isArray: true })
-    products: ProductEntity[];
+  @Expose()
+  @ApiProperty({ type: ProductEntity, isArray: true })
+  products: ProductEntity[];
 }

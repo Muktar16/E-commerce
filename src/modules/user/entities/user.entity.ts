@@ -52,16 +52,20 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   resetPasswordToken: string;
 
   @Exclude()
-  @Column({ name: 'reset_password_token_expires',type: 'timestamp', nullable: true })
+  @Column({
+    name: 'reset_password_token_expires',
+    type: 'timestamp',
+    nullable: true,
+  })
   @IsOptional()
   resetPassTokenExpires: Date;
 
   @Exclude()
-  @Column({name:'refresh_token', nullable: true })
+  @Column({ name: 'refresh_token', nullable: true })
   refreshToken?: string;
 
   @Exclude()
-  @Column({name:'refresh_token_expires', type: 'timestamp', nullable: true })
+  @Column({ name: 'refresh_token_expires', type: 'timestamp', nullable: true })
   refreshTokenExpires?: Date;
 
   @OneToOne(() => CartEntity, (cart) => cart.user)
@@ -73,7 +77,7 @@ export class UserEntity extends AbstractEntity<UserEntity> {
   @OneToMany(() => UserPromoEntity, (userPromo) => userPromo.user)
   @JoinColumn()
   public userPromos: UserPromoEntity[];
-  
+
   toJSON() {
     return instanceToPlain(this);
   }

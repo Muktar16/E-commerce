@@ -10,9 +10,9 @@ export class OrderInvoice {
   @ApiProperty({ example: 90 })
   itemsSubTotalAfterDiscount: number;
 
-//   @Expose()
-//   @ApiProperty({ example: 140 })
-//   totalOrderAmount: number;
+  //   @Expose()
+  //   @ApiProperty({ example: 140 })
+  //   totalOrderAmount: number;
 
   @Expose()
   @ApiProperty({ example: 40 })

@@ -9,6 +9,6 @@ import { UserCrudService } from './providers/user-crud.service';
   imports: [TypeOrmModule.forFeature([UserEntity]), JwtModule],
   controllers: [UserCrudController],
   providers: [UserCrudService],
-  exports: [UserCrudService]
+  exports: [UserCrudService],
 })
 export class UserModule {}

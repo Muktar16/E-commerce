@@ -7,10 +7,9 @@ import { CategoryGeneralController } from './controllers/category-general.contro
 import { CategoryGeneralService } from './providers/category-general.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Category])], 
-  providers: [CategoryGeneralService, CategoryAdminService], 
+  imports: [TypeOrmModule.forFeature([Category])],
+  providers: [CategoryGeneralService, CategoryAdminService],
   controllers: [CategoryAdminController, CategoryGeneralController],
   exports: [CategoryAdminService, CategoryGeneralService],
 })
-
 export class CategoryModule {}

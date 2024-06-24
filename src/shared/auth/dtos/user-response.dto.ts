@@ -54,5 +54,3 @@ export class UserResponseDto {
     return instanceToPlain(this);
   }
 }
-
-

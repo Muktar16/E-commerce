@@ -1,6 +1,19 @@
-import { Controller, Delete, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { UserResponseDto } from 'src/shared/auth/dtos/user-response.dto';
@@ -20,8 +33,8 @@ export class UserCrudController {
   @Get('my-profile')
   @ApiOperation({ summary: 'Get My Profile' })
   @ApiOkResponse({ description: 'My Profile Response', type: UserResponseDto })
-  async getMyProfile(@Req() req:any): Promise<UserResponseDto>{
-    console.log("User ID: ", req.user.id)
+  async getMyProfile(@Req() req: any): Promise<UserResponseDto> {
+    console.log('User ID: ', req.user.id);
     const userProfile = this.userCrudService.findOneById(+req.user.id);
     return plainToInstance(UserResponseDto, userProfile);
   }
@@ -29,13 +42,22 @@ export class UserCrudController {
   @UseGuards(new RoleGuard([Roles.SUPERADMIN, Roles.ADMIN]))
   @Get()
   @ApiOperation({ summary: 'Get all users' })
-  @ApiOkResponse({ description: 'All Users Response', type: AllUsersResponseDto })
+  @ApiOkResponse({
+    description: 'All Users Response',
+    type: AllUsersResponseDto,
+  })
   async findAll(
     @Query() paginationDto: PaginationDto,
     @Query() filterUserDto: FilterUserDto,
   ): Promise<AllUsersResponseDto> {
-    const { users, total } = await this.userCrudService.findAll(paginationDto, filterUserDto);
-    return plainToInstance(AllUsersResponseDto, { total, users: plainToInstance(UserResponseDto, users) });
+    const { users, total } = await this.userCrudService.findAll(
+      paginationDto,
+      filterUserDto,
+    );
+    return plainToInstance(AllUsersResponseDto, {
+      total,
+      users: plainToInstance(UserResponseDto, users),
+    });
   }
 
   @UseGuards(new RoleGuard([Roles.SUPERADMIN, Roles.ADMIN]))
@@ -49,7 +71,7 @@ export class UserCrudController {
 
   @Delete('delete-account')
   @ApiOperation({ summary: 'Delete Account' })
-  async deleteAccount(@Req() req:any){
+  async deleteAccount(@Req() req: any) {
     return this.userCrudService.deleteAccount(+req.user.id);
   }
 }

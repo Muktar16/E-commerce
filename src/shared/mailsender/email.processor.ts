@@ -85,7 +85,7 @@ export class EmailProcessor {
   }
 
   @Process('admin-approved')
-  async sendAdminApprovedEmail(job:Job<Mail>){
+  async sendAdminApprovedEmail(job: Job<Mail>) {
     const { data } = job.data;
     await this.mailService.sendMail({
       ...data,
@@ -97,31 +97,31 @@ export class EmailProcessor {
     });
   }
 
-//   @Process('verify-email')
-//   async sendVerifyEmail(job: Job<Mail>) {
-//     const { data } = job.data;
+  //   @Process('verify-email')
+  //   async sendVerifyEmail(job: Job<Mail>) {
+  //     const { data } = job.data;
 
-//     await this.mailService.sendMail({
-//       ...data,
-//       template: 'verify-email',
-//       context: {
-//         user: data.user,
-//         text: data.text,
-//       },
-//     });
-//     return { jobId: job.id };
-//   }
+  //     await this.mailService.sendMail({
+  //       ...data,
+  //       template: 'verify-email',
+  //       context: {
+  //         user: data.user,
+  //         text: data.text,
+  //       },
+  //     });
+  //     return { jobId: job.id };
+  //   }
 
-//   @Process('reset-password')
-//   async sendResetPasswordEmail(job: Job<Mail>) {
-//     const { data } = job.data;
+  //   @Process('reset-password')
+  //   async sendResetPasswordEmail(job: Job<Mail>) {
+  //     const { data } = job.data;
 
-//     await this.mailService.sendMail({
-//       ...data,
-//       template: 'reset-password',
-//       context: {
-//         user: data.user,
-//       },
-//     });
-//   }
+  //     await this.mailService.sendMail({
+  //       ...data,
+  //       template: 'reset-password',
+  //       context: {
+  //         user: data.user,
+  //       },
+  //     });
+  //   }
 }

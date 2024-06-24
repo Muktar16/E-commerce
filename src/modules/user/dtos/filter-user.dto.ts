@@ -16,8 +16,12 @@ export class FilterUserDto {
 
   @IsEnum(BooleanEnum)
   @IsOptional()
-  @ApiPropertyOptional({required:false, enum: BooleanEnum, description: 'Filter by verification status',})
-  isVerified?: BooleanEnum
+  @ApiPropertyOptional({
+    required: false,
+    enum: BooleanEnum,
+    description: 'Filter by verification status',
+  })
+  isVerified?: BooleanEnum;
 
   @IsOptional()
   @IsEnum(Roles)

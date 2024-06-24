@@ -21,14 +21,14 @@ export class CartService {
     return this.cartRepository.save(cart);
   }
 
-  async getCart(userId: number):Promise<CartEntity> {
+  async getCart(userId: number): Promise<CartEntity> {
     return await this.cartRepository.findOne({
       where: { userId },
       relations: { cartItems: { product: true } },
     });
   }
 
-  async addItemToCart(itemInfo: AddItemDto, userId: number):Promise<string> {
+  async addItemToCart(itemInfo: AddItemDto, userId: number): Promise<string> {
     const product = await this.productService.findOne(itemInfo.productId);
     if (!product) {
       throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
@@ -40,7 +40,7 @@ export class CartService {
       );
     }
 
-    let cart = await this.cartRepository.findOne({
+    const cart = await this.cartRepository.findOne({
       where: { userId },
       relations: { cartItems: { product: true } },
     });
@@ -51,7 +51,7 @@ export class CartService {
     if (existingProduct) {
       existingProduct.quantity = itemInfo.quantity;
       await this.cartProductRepository.save(existingProduct);
-      return "Item Successfully added to cart";
+      return 'Item Successfully added to cart';
     }
 
     const cartProduct = this.cartProductRepository.create({
@@ -61,10 +61,10 @@ export class CartService {
     cartProduct.cart = cart;
     cartProduct.product = product;
     await this.cartProductRepository.save(cartProduct);
-    return "Item Successfully added to cart";
+    return 'Item Successfully added to cart';
   }
 
-  async removeItemFromCart(productId: number, userId: number):Promise<string> {
+  async removeItemFromCart(productId: number, userId: number): Promise<string> {
     const cart = await this.cartRepository.findOne({
       where: { userId },
       relations: { cartItems: { product: true } },
@@ -83,7 +83,7 @@ export class CartService {
     return 'Item successfully removed from cart';
   }
 
-  async clearCart(userId: number):Promise<string> {
+  async clearCart(userId: number): Promise<string> {
     const cart = await this.cartRepository.findOne({
       where: { userId },
       relations: { cartItems: { product: true } },
@@ -92,6 +92,6 @@ export class CartService {
       await this.cartProductRepository.softDelete(cartItem.id);
     });
     await this.cartProductRepository.softRemove(cart.cartItems);
-    return "Cart cleared successfully";
+    return 'Cart cleared successfully';
   }
 }

@@ -22,7 +22,7 @@ export class AdminOrderService {
     updateStatus: UpdateStatusDto,
   ): Promise<ResponseType> {
     const order = await this.orderRepository.findOne({
-      where: { id,  },
+      where: { id },
     });
     if (!order) {
       throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
@@ -36,7 +36,7 @@ export class AdminOrderService {
   }
 
   async deleteOrder(id: number): Promise<string> {
-    const order = await this.orderRepository.findOne({where: { id }});
+    const order = await this.orderRepository.findOne({ where: { id } });
     if (!order) {
       throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
     }
@@ -45,7 +45,8 @@ export class AdminOrderService {
   }
 
   async getAllOrders(query: GetAllOrdersQueryDto) {
-    const { orderStatus, dateFrom, dateTo, userId, limit, offset, page, size } = query;
+    const { orderStatus, dateFrom, dateTo, userId, limit, offset, page, size } =
+      query;
 
     console.log('query', query);
     const whereCondition: any = { isDeleted: false };
@@ -70,7 +71,7 @@ export class AdminOrderService {
     }
 
     const take = limit || size || 10;
-    const skip = offset || ((page - 1) * take) || 0;
+    const skip = offset || (page - 1) * take || 0;
 
     let [orders, total] = await this.orderRepository.findAndCount({
       // where: whereCondition,

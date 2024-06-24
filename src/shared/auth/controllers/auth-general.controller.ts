@@ -9,7 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { RoleGuard } from '../../guards/role.guard';
@@ -69,14 +74,14 @@ export class AuthGeneralController {
   }
 
   @Post('approve-admin')
-  @ApiOperation({summary: 'Approve Admin'})
+  @ApiOperation({ summary: 'Approve Admin' })
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.SUPERADMIN]))
   async approveAdmin(@Body() emailOnlyDto: EmailOnlyDto) {
     return this.authGeneralService.approveAdmin(emailOnlyDto);
   }
 
   @Post('approve-delivery-person')
-  @ApiOperation({summary: 'Approve Delivery Person'})
+  @ApiOperation({ summary: 'Approve Delivery Person' })
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.SUPERADMIN, Roles.ADMIN]))
   async approveDeliveryAgent(@Body() emailOnlyDto: EmailOnlyDto) {
     return this.authGeneralService.approveDeliveryAgent(emailOnlyDto);

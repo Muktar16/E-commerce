@@ -14,7 +14,7 @@ export class ProductGeneralService {
     private categorGeneralService: CategoryGeneralService,
   ) {}
 
-  async findAll( 
+  async findAll(
     filterProductDto: FilterProductDto,
     paginationDto: PaginationDto,
   ) {
@@ -59,7 +59,7 @@ export class ProductGeneralService {
   async findOne(id: number) {
     const product = this.productRepository.findOne({
       where: { id },
-      relations: { category: true , discount: true },
+      relations: { category: true, discount: true },
     });
     if (!product) {
       throw new HttpException(
@@ -90,6 +90,6 @@ export class ProductGeneralService {
   }
 
   async findAllByIds(ids: number[]) {
-    return await this.productRepository.findBy({id: In(ids)});
+    return await this.productRepository.findBy({ id: In(ids) });
   }
 }

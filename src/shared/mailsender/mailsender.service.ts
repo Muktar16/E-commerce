@@ -50,8 +50,8 @@ export class MailSenderService {
     return { jobId: job.id };
   }
 
-  async sendAdminApprovedEmail(data:Mail) {
-    const job = await this.emailQueue.add('admin-approved', { data })
-    return { jobId : job.id};
+  async sendAdminApprovedEmail(data: Mail) {
+    const job = await this.emailQueue.add('admin-approved', { data });
+    return { jobId: job.id };
   }
 }

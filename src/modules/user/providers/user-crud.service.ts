@@ -82,7 +82,7 @@ export class UserCrudService {
   async getUserWithCart(userId: number) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: { cart: { cartItems: { product: {discount:true} } } },
+      relations: { cart: { cartItems: { product: { discount: true } } } },
     });
     if (!user || !user.cart) {
       throw new HttpException(
@@ -120,7 +120,10 @@ export class UserCrudService {
   }
 
   async getUserPromos(userId: number) {
-    const user = await this.userRepository.findOne({where: {id: userId}, relations: {userPromos: {promo: true}}});
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: { userPromos: { promo: true } },
+    });
     return user.userPromos;
   }
 }

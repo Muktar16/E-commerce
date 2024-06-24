@@ -12,10 +12,12 @@ import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 10,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [
@@ -32,14 +34,14 @@ import { ThrottlerModule } from '@nestjs/throttler';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
         schema: configService.get<string>('DB_SCHEMA'),
-        migrations:['dist/migrations/*{.ts,.js}'],
+        migrations: ['dist/migrations/*{.ts,.js}'],
         entities: [__dirname + '/**/*.entity{.js,.ts}'],
         synchronize: true,
         logging: true,
       }),
       inject: [ConfigService],
     }),
-    
+
     ModulesModule,
     SharedModule,
     LoggingModule,

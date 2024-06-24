@@ -8,8 +8,12 @@ import { UserModule } from '../user/user.module';
 import { CartItemEntity } from './entities/cart-items.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CartEntity, CartItemEntity]), ProductModule, UserModule],
-  controllers: [ CartController],
+  imports: [
+    TypeOrmModule.forFeature([CartEntity, CartItemEntity]),
+    ProductModule,
+    UserModule,
+  ],
+  controllers: [CartController],
   providers: [CartService],
   exports: [CartService],
 })

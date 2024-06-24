@@ -14,7 +14,12 @@ const deliveryCharge = 40;
 @Entity(TableNames.ORDERS)
 export class OrderEntity extends AbstractEntity<OrderEntity> {
   @Expose()
-  @Column({ name: 'order_status', type: 'text', nullable: false, default: OrderStatus.Pending })
+  @Column({
+    name: 'order_status',
+    type: 'text',
+    nullable: false,
+    default: OrderStatus.Pending,
+  })
   orderStatus: string;
 
   @Expose()
@@ -26,7 +31,11 @@ export class OrderEntity extends AbstractEntity<OrderEntity> {
   contactNumber: string;
 
   @Expose()
-  @Column({ name: 'order_date', type: 'timestamp without time zone', nullable: false })
+  @Column({
+    name: 'order_date',
+    type: 'timestamp without time zone',
+    nullable: false,
+  })
   orderDate: Date;
 
   @Expose()
@@ -38,8 +47,7 @@ export class OrderEntity extends AbstractEntity<OrderEntity> {
   orderInvoice: OrderInvoice;
 
   @Expose()
-  @ManyToOne(() => UserEntity, user => user.orders)
+  @ManyToOne(() => UserEntity, (user) => user.orders)
   @JoinColumn()
   user: UserEntity;
 }
-

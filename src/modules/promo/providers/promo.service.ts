@@ -4,7 +4,13 @@ import { UpdatePromoDto } from '../dto/update-promo.dto';
 import * as moment from 'moment';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserPromoEntity } from '../entities/user_promos.entity';
-import { FindOptionsWhere, LessThan, LessThanOrEqual, MoreThan, Repository } from 'typeorm';
+import {
+  FindOptionsWhere,
+  LessThan,
+  LessThanOrEqual,
+  MoreThan,
+  Repository,
+} from 'typeorm';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 import { PromoEntity } from '../entities/promo.entity';
 import { PromoQueryDto } from '../dto/promo-query.dto';

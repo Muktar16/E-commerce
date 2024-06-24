@@ -46,12 +46,16 @@ export class CreateDiscountDto {
 
   @ApiProperty({ description: 'Discount start date', example: '2023-01-01' })
   @IsDateString()
-  @ValidateIf((object) => moment(object.validFrom).isBefore(moment(object.validTo), 'day'))
+  @ValidateIf((object) =>
+    moment(object.validFrom).isBefore(moment(object.validTo), 'day'),
+  )
   validFrom: string;
 
   @ApiProperty({ description: 'Discount end date', example: '2023-12-31' })
   @IsDateString()
-  @ValidateIf((object) => moment(object.validTo).isAfter(moment(object.validFrom), 'day')) // Corrected validation logic
+  @ValidateIf((object) =>
+    moment(object.validTo).isAfter(moment(object.validFrom), 'day'),
+  ) // Corrected validation logic
   validTo: string;
 
   @ApiProperty({ description: 'Product IDs', example: [1, 2, 3] })

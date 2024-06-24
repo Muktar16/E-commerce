@@ -80,7 +80,7 @@ export class DiscountAdminController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete discount' })
-  @ApiOkResponse({ type: String, description: 'Discount deleted'})
+  @ApiOkResponse({ type: String, description: 'Discount deleted' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<string> {
     return this.discountAdminService.remove(id);
   }
@@ -99,7 +99,9 @@ export class DiscountAdminController {
   @Post('/apply')
   @ApiOperation({ summary: 'Apply discount to products' })
   @ApiOkResponse({ status: 200, type: String })
-  async applyDiscount(@Body() applyDiscountDto:ApplyDiscountDto): Promise<DiscountEntity> {
+  async applyDiscount(
+    @Body() applyDiscountDto: ApplyDiscountDto,
+  ): Promise<DiscountEntity> {
     return this.discountAdminService.applyDiscountToProducts(applyDiscountDto);
   }
 }

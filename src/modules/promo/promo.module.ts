@@ -7,7 +7,10 @@ import { UserPromoEntity } from './entities/user_promos.entity';
 import { PromoService } from './providers/promo.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserPromoEntity, PromoEntity]), UserModule],
+  imports: [
+    TypeOrmModule.forFeature([UserPromoEntity, PromoEntity]),
+    UserModule,
+  ],
   controllers: [PromoController],
   providers: [PromoService],
   exports: [PromoService],

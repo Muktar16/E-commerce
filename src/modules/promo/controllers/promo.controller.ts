@@ -8,7 +8,7 @@ import {
   Put,
   Query,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
@@ -33,8 +33,6 @@ import { PromoService } from '../providers/promo.service';
 export class PromoController {
   constructor(private readonly promoService: PromoService) {}
 
-
-
   @UseGuards(new RoleGuard([Roles.SUPERADMIN, Roles.ADMIN]))
   @ApiOperation({ summary: 'Create a new promo' })
   @ApiOkResponse({ description: 'Promo created successfully', type: String })
@@ -51,7 +49,7 @@ export class PromoController {
     return this.promoService.findAll(query);
   }
 
-  @UseGuards( new RoleGuard([Roles.SUPERADMIN, Roles.ADMIN]))
+  @UseGuards(new RoleGuard([Roles.SUPERADMIN, Roles.ADMIN]))
   @ApiOkResponse({ description: 'Promo found successfully', type: PromoEntity })
   @ApiOperation({ summary: 'Find a promo by id' })
   @Get(':id')
@@ -59,7 +57,7 @@ export class PromoController {
     return this.promoService.findOne(+id);
   }
 
-  @UseGuards( new RoleGuard([Roles.SUPERADMIN, Roles.ADMIN]))
+  @UseGuards(new RoleGuard([Roles.SUPERADMIN, Roles.ADMIN]))
   @ApiOperation({ summary: 'Update a promo by id' })
   @ApiOkResponse({ description: 'Promo updated successfully', type: String })
   @Put(':id')
@@ -80,9 +78,11 @@ export class PromoController {
 
   @Get('user/my-promos')
   @ApiOperation({ summary: 'Get all promos for the logged in user' })
-  @ApiOkResponse({ description: 'List of all promos', type: [MyPromosResponseDto] })
+  @ApiOkResponse({
+    description: 'List of all promos',
+    type: [MyPromosResponseDto],
+  })
   findMyPromos(@Req() req: any) {
     return this.promoService.findMyPromos(+req.user.id);
   }
-
 }

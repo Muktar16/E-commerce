@@ -25,7 +25,10 @@ export class LoggingService {
       const newLogFileName = `all_${timestamp}.log`;
 
       // Rename current log file
-      await fsPromises.rename(this.LOG_FILE, join(this.LOG_DIR, newLogFileName));
+      await fsPromises.rename(
+        this.LOG_FILE,
+        join(this.LOG_DIR, newLogFileName),
+      );
 
       // Create new empty log file
       await fsPromises.writeFile(this.LOG_FILE, '');
@@ -36,7 +39,10 @@ export class LoggingService {
     try {
       await this.ensureLogFileExists();
       await this.rotateLogFile();
-      await fsPromises.appendFile(this.LOG_FILE, JSON.stringify(data, null, 2) + '\n');
+      await fsPromises.appendFile(
+        this.LOG_FILE,
+        JSON.stringify(data, null, 2) + '\n',
+      );
     } catch (error) {
       console.error('Error writing log file:', error);
     }

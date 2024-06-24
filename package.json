@@ -24,7 +24,7 @@
     "migration:run": "pnpm typeorm -- migration:run",
     "migration:revert": "pnpm typeorm -- migration:revert",
     "db:drop": "pnpm typeorm -- schema:drop",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",

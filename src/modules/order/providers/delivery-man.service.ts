@@ -17,7 +17,7 @@ export class AdminOrderService {
     updateStatus: UpdateStatusDto,
   ): Promise<ResponseType> {
     const order = await this.orderRepository.findOne({
-      where: { id,  },
+      where: { id },
     });
     if (!order) {
       throw new HttpException('Order not found', HttpStatus.NOT_FOUND);

@@ -9,7 +9,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { RoleGuard } from 'src/shared/guards/role.guard';
@@ -70,7 +75,10 @@ export class CategoryAdminController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Update Category' })
-  @ApiOkResponse({ description: 'Category Updated Successfully', type: Category })
+  @ApiOkResponse({
+    description: 'Category Updated Successfully',
+    type: Category,
+  })
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   update(
     @Param('id') id: string,
@@ -81,7 +89,7 @@ export class CategoryAdminController {
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete Category' })
-  @ApiOkResponse({ description: 'Category Deleted Successfully',})
+  @ApiOkResponse({ description: 'Category Deleted Successfully' })
   @UseGuards(AuthGuard('jwt'), new RoleGuard([Roles.ADMIN, Roles.SUPERADMIN]))
   async delete(@Param('id') id: string): Promise<string> {
     return await this.categoryAdminService.delete(+id);

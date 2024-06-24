@@ -15,7 +15,7 @@ export class DiscountResponseDto {
   @Expose()
   type: string;
 
-  @ApiProperty({ description: 'Discount value', type: 'number'})
+  @ApiProperty({ description: 'Discount value', type: 'number' })
   @IsNumber()
   @Expose()
   value: number;

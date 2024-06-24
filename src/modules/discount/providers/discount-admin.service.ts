@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as moment from 'moment';
@@ -36,7 +36,10 @@ export class DiscountAdminService {
       );
     }
     // check if the productids are valid & apply the discount to the products
-    if (createDiscountDto.productIds && createDiscountDto.productIds.length > 0) {
+    if (
+      createDiscountDto.productIds &&
+      createDiscountDto.productIds.length > 0
+    ) {
       const products = await this.productService.findAllByIds(
         createDiscountDto.productIds,
       );
@@ -102,13 +105,19 @@ export class DiscountAdminService {
   }
 
   async applyDiscountToProducts(
-    applyDiscountDto:ApplyDiscountDto
+    applyDiscountDto: ApplyDiscountDto,
   ): Promise<DiscountEntity> {
-    const discount = await this.discountRepository.findOne({where:{id:applyDiscountDto.discountId}});
+    const discount = await this.discountRepository.findOne({
+      where: { id: applyDiscountDto.discountId },
+    });
     if (!discount) {
-      throw new NotFoundException(`Discount with id ${applyDiscountDto.discountId} not found`);
+      throw new NotFoundException(
+        `Discount with id ${applyDiscountDto.discountId} not found`,
+      );
     }
-    const products = await this.productService.findAllByIds(applyDiscountDto.productIds);
+    const products = await this.productService.findAllByIds(
+      applyDiscountDto.productIds,
+    );
     // check if any of the products are not found
     if (products.length !== applyDiscountDto.productIds.length) {
       throw new BadRequestException('Invalid product IDs');
@@ -117,7 +126,10 @@ export class DiscountAdminService {
       product.discount = discount;
       await this.productService.updateById(product.id, product);
     }
-    const updatedDiscount = await this.discountRepository.findOne({where:{id:applyDiscountDto.discountId}, relations:{products:true}});
+    const updatedDiscount = await this.discountRepository.findOne({
+      where: { id: applyDiscountDto.discountId },
+      relations: { products: true },
+    });
     return updatedDiscount;
   }
 }

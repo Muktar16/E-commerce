@@ -56,16 +56,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     if (exception instanceof HttpException) {
       status = exception.getStatus();
-      if(isProduction) message = exception.message;
-      else message = (exception as any ).getResponse().message || exception.message;
+      if (isProduction) message = exception.message;
+      else
+        message = (exception as any).getResponse().message || exception.message;
     }
 
-    Logger.error(`${request.method} ${request.url}`, JSON.stringify(exception), 'ExceptionFilter');
+    Logger.error(
+      `${request.method} ${request.url}`,
+      JSON.stringify(exception),
+      'ExceptionFilter',
+    );
 
     // Log the error in production mode
-    if(isProduction) {
+    if (isProduction) {
       const logData: LogData = {
-        level: status >= 500 ? 'error' : 'warn', 
+        level: status >= 500 ? 'error' : 'warn',
         message,
         timestamp: new Date().toISOString(),
         context: 'HTTP Exception',
@@ -75,22 +80,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
           clientIP: request.ip,
         },
       };
-  
+
       if (!(exception instanceof HttpException)) {
         logData.context = 'Unknown Exception';
         logData.trace = (exception as Error)?.stack;
       }
-      this.loggingService.log(logData); 
+      this.loggingService.log(logData);
     }
 
-    let responseBody:ErrorResponse = undefined;
-    if(isProduction ) {
+    let responseBody: ErrorResponse = undefined;
+    if (isProduction) {
       responseBody = {
         status: 'error',
         statusCode: status,
         message,
       };
-    }else{
+    } else {
       responseBody = {
         statusCode: status,
         message,
