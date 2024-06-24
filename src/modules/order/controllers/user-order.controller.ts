@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   Post,
-  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -16,13 +15,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/common/enums/user-roles.enum';
-import { ResponseType } from 'src/common/interfaces/response.interface';
+import { RoleGuard } from 'src/shared/guards/role.guard';
+import { CreateOrderResponseDto } from '../dtos/create-order-response.dto';
 import { CreateOrderDto } from '../dtos/create-order.dto';
 import { UserOrderService } from '../providers/user-order.service';
-import { CreateOrderResponseDto } from '../dtos/create-order-response.dto';
-import { plainToInstance } from 'class-transformer';
 
 @ApiTags('Order')
 @ApiBearerAuth()

@@ -10,12 +10,14 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 
+import { InjectRepository } from '@nestjs/typeorm';
 import { generate } from 'otp-generator';
 import { Roles } from 'src/common/enums/user-roles.enum';
 import { CartService } from 'src/modules/cart/providers/cart.service';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 import { SmsService } from 'src/shared/smssender/sms/sms.service';
+import { Repository } from 'typeorm';
 import { MailSenderService } from '../../mailsender/mailsender.service';
 import { SpecialSignUpDto } from '../dtos/auth.admin-signup.dto';
 import { ChangePasswordDto } from '../dtos/auth.change-password.dto';
@@ -24,9 +26,7 @@ import { ResetPasswordDto } from '../dtos/auth.reset-password.dto';
 import { SignUpDto } from '../dtos/auth.signup.dto';
 import { VerifyEmailDto } from '../dtos/auth.verify-email.dto';
 import { UserResponseDto } from '../dtos/user-response.dto';
-import { In, Repository } from 'typeorm';
 import { SessionEntity } from '../entities/sessions.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 
 const moment = require('moment');
 @Injectable()

@@ -1,15 +1,12 @@
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { TableNames } from 'src/common/enums/table-names.enum';
-// import { OrderInvoice } from 'src/common/interfaces/order-invoice.interface';
-// import { OrderedProduct } from 'src/common/interfaces/ordered-product.interface';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { OrderStatus } from '../enums/order-status.enum';
+ø;
 import { OrderedProduct } from '../dtos/ordered-product.dto';
 import { OrderInvoice } from '../dtos/ordered-invoice.dto';
 import { Expose } from 'class-transformer';
-
-const deliveryCharge = 40;
 
 @Entity(TableNames.ORDERS)
 export class OrderEntity extends AbstractEntity<OrderEntity> {

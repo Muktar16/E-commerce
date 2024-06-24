@@ -1,27 +1,25 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Post,
   Req,
+  UseGuards,
 } from '@nestjs/common';
-import { CartService } from '../providers/cart.service';
 import { AuthGuard } from '@nestjs/passport';
-import { Roles } from 'src/common/enums/user-roles.enum';
-import { RoleGuard } from 'src/shared/guards/role.guard';
-import { AddItemDto } from '../dtos/add-item.dto';
 import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CartEntity } from '../entities/cart.entity';
+import { Roles } from 'src/common/enums/user-roles.enum';
+import { RoleGuard } from 'src/shared/guards/role.guard';
+import { AddItemDto } from '../dtos/add-item.dto';
 import { CartResponseDto } from '../dtos/get-cart-response.dto';
+import { CartService } from '../providers/cart.service';
 
 @ApiTags('Cart')
 @ApiBearerAuth()
