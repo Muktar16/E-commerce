@@ -1,14 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ResponseType } from 'src/common/interfaces/response.interface';
-import { OrderEntity } from '../entities/order.entity';
-import { Repository } from 'typeorm';
-import { UpdateStatusDto } from '../dtos/update-status.dto';
-import { GetAllOrdersQueryDto } from '../dtos/get-all-orders-query.dto';
 import { plainToInstance } from 'class-transformer';
-import { ProductEntity } from 'src/modules/product/entities/product.entity';
-import { OrderedProduct } from '../dtos/ordered-product.dto';
 import { PaginatedDataResponseDto } from 'src/common/dtos/PaginatedDataResponse.dto';
+import { ResponseType } from 'src/common/interfaces/response.interface';
+import { Repository } from 'typeorm';
+import { GetAllOrdersQueryDto } from '../dtos/get-all-orders-query.dto';
+import { OrderedProduct } from '../dtos/ordered-product.dto';
+import { UpdateStatusDto } from '../dtos/update-status.dto';
+import { OrderEntity } from '../entities/order.entity';
 
 @Injectable()
 export class AdminOrderService {

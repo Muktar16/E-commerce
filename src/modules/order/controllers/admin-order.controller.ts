@@ -3,11 +3,8 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Put,
-  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -17,13 +14,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { RoleGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/common/enums/user-roles.enum';
-import { AdminOrderService } from '../providers/admin-order.service';
-import { UpdateStatusDto } from '../dtos/update-status.dto';
-import { ResponseType } from 'src/common/interfaces/response.interface';
+import { RoleGuard } from 'src/shared/guards/role.guard';
 import { CreateOrderResponseDto } from '../dtos/create-order-response.dto';
-import { GetAllOrdersQueryDto } from '../dtos/get-all-orders-query.dto';
+import { UpdateStatusDto } from '../dtos/update-status.dto';
+import { AdminOrderService } from '../providers/admin-order.service';
 
 @ApiTags('Admin/Order')
 @ApiBearerAuth()

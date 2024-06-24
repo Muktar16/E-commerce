@@ -1,9 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreatePromoDto } from '../dto/create-promo.dto';
-import { UpdatePromoDto } from '../dto/update-promo.dto';
-import * as moment from 'moment';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserPromoEntity } from '../entities/user_promos.entity';
+import * as moment from 'moment';
+import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
 import {
   FindOptionsWhere,
   LessThan,
@@ -11,10 +9,11 @@ import {
   MoreThan,
   Repository,
 } from 'typeorm';
-import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
-import { PromoEntity } from '../entities/promo.entity';
+import { CreatePromoDto } from '../dto/create-promo.dto';
 import { PromoQueryDto } from '../dto/promo-query.dto';
-import { WhereClause } from 'typeorm/query-builder/WhereClause';
+import { UpdatePromoDto } from '../dto/update-promo.dto';
+import { PromoEntity } from '../entities/promo.entity';
+import { UserPromoEntity } from '../entities/user_promos.entity';
 
 @Injectable()
 export class PromoService {

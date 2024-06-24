@@ -1,12 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ResponseType } from 'src/common/interfaces/response.interface';
 import { FindOptionsWhere, ILike, In, Repository } from 'typeorm';
+import { PaginationDto } from '../../../common/dtos/pagination.dto';
 import { AllUsersResponseDto } from '../dtos/all-users-response.dto';
 import { FilterUserDto } from '../dtos/filter-user.dto';
-import { PaginationDto } from '../../../common/dtos/pagination.dto';
 import { UserEntity } from '../entities/user.entity';
-import { AuthGeneralService } from 'src/shared/auth/providers/auth-general.service';
 
 @Injectable()
 export class UserCrudService {

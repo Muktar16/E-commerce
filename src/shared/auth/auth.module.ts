@@ -2,17 +2,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { UserModule } from 'src/modules/user/user.module';
-import { LocalStrategy } from './strategies/local.strategy';
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { MailSenderModule } from '../mailsender/mailsender.module';
-import { CartModule } from 'src/modules/cart/cart.module';
-import { AuthGeneralController } from './controllers/auth-general.controller';
-import { AuthGeneralService } from './providers/auth-general.service';
-import { SmsModule } from '../smssender/sms/sms.module';
-import { Type } from 'class-transformer';
-import { SessionEntity } from './entities/sessions.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CartModule } from 'src/modules/cart/cart.module';
+import { UserModule } from 'src/modules/user/user.module';
+import { MailSenderModule } from '../mailsender/mailsender.module';
+import { SmsModule } from '../smssender/sms/sms.module';
+import { AuthGeneralController } from './controllers/auth-general.controller';
+import { SessionEntity } from './entities/sessions.entity';
+import { AuthGeneralService } from './providers/auth-general.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [

@@ -1,8 +1,7 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { AbstractEntity } from 'src/common/entities/abstract.entity';
 import { TableNames } from 'src/common/enums/table-names.enum';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
-import { Injectable } from '@nestjs/common';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity(TableNames.SESSIONS)
 export class SessionEntity extends AbstractEntity<SessionEntity> {

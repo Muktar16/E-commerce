@@ -9,7 +9,6 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
-
 import { InjectRepository } from '@nestjs/typeorm';
 import { generate } from 'otp-generator';
 import { Roles } from 'src/common/enums/user-roles.enum';
@@ -29,6 +28,7 @@ import { UserResponseDto } from '../dtos/user-response.dto';
 import { SessionEntity } from '../entities/sessions.entity';
 
 const moment = require('moment');
+
 @Injectable()
 export class AuthGeneralService {
   constructor(

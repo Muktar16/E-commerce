@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose, instanceToPlain } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import { UserResponseDto } from 'src/shared/auth/dtos/user-response.dto';
 
 export class AllUsersResponseDto {
