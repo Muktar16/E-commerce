@@ -119,7 +119,7 @@ export class UserOrderService {
     }
 
     if (promoCode) {
-      const { promo, userPromo } = await this.validatePromoCode(
+      const { promo } = await this.validatePromoCode(
         promoCode,
         userId,
         currentDate,

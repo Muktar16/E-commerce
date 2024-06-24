@@ -3,7 +3,6 @@ import { TableNames } from 'src/common/enums/table-names.enum';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { OrderStatus } from '../enums/order-status.enum';
-ø;
 import { OrderedProduct } from '../dtos/ordered-product.dto';
 import { OrderInvoice } from '../dtos/ordered-invoice.dto';
 import { Expose } from 'class-transformer';
