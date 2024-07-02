@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CartModule } from 'src/modules/cart/cart.module';
 import { UserModule } from 'src/modules/user/user.module';
 import { MailSenderModule } from '../mailsender/mailsender.module';
-import { SmsModule } from '../smssender/sms/sms.module';
 import { AuthGeneralController } from './controllers/auth-general.controller';
 import { SessionEntity } from './entities/sessions.entity';
 import { AuthGeneralService } from './providers/auth-general.service';
@@ -20,7 +19,6 @@ import { LocalStrategy } from './strategies/local.strategy';
     PassportModule,
     MailSenderModule,
     CartModule,
-    SmsModule,
     TypeOrmModule.forFeature([SessionEntity]),
     JwtModule.registerAsync({
       imports: [ConfigModule],

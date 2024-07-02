@@ -15,7 +15,6 @@ import { Roles } from 'src/common/enums/user-roles.enum';
 import { CartService } from 'src/modules/cart/providers/cart.service';
 import { UserEntity } from 'src/modules/user/entities/user.entity';
 import { UserCrudService } from 'src/modules/user/providers/user-crud.service';
-import { SmsService } from 'src/shared/smssender/sms/sms.service';
 import { Repository } from 'typeorm';
 import { MailSenderService } from '../../mailsender/mailsender.service';
 import { SpecialSignUpDto } from '../dtos/auth.admin-signup.dto';
@@ -37,7 +36,6 @@ export class AuthGeneralService {
     private configService: ConfigService,
     private mailSenderService: MailSenderService,
     private cartService: CartService,
-    private smsService: SmsService,
     @InjectRepository(SessionEntity)
     private sessionRepository: Repository<SessionEntity>,
   ) {}
