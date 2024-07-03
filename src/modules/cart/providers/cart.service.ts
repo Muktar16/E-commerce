@@ -83,6 +83,8 @@ export class CartService {
     return 'Item successfully removed from cart';
   }
 
+  
+
   async clearCart(userId: number): Promise<string> {
     const cart = await this.cartRepository.findOne({
       where: { userId },
