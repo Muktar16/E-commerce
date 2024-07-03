@@ -82,6 +82,7 @@ export class CartService {
     await this.cartProductRepository.softDelete(cartProduct.id);
     return 'Item successfully removed from cart';
   }
+  
 
   async clearCart(userId: number): Promise<string> {
     const cart = await this.cartRepository.findOne({
